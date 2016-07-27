@@ -20,8 +20,8 @@ namespace Importer
 		[STAThread]
 		static void Main(string[] args)
 		{
-			string Dev1Connection = "DRIVER={mySql ODBC 5.2 Unicode Driver};SERVER=Dev4;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
-//			string Dev1Connection = "DRIVER={mySql ODBC 5.2 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
+			string Dev1Connection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=Dev4;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
+//			string Dev1Connection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
 			//			string Dev2Connection = @"DRIVER={SQL Server};SERVER=Dev2;DATABASE=Freedom1;UID=sa;PWD=tandori;";
 			//			string FREEDOMConnection = @"DRIVER={SQL Server};SERVER=localhost;DATABASE=Freedom;UID=welman;PWD=!WebFred!1;";
 			string thisConnection = Dev1Connection;

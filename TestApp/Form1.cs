@@ -812,11 +812,11 @@ namespace TestApp
 			Application.Run(new Form1());
 		}
 
-		public string KateConnection = "DRIVER={mySql ODBC 5.2 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
-		public const string Dev1Connection = "DRIVER={mySql ODBC 5.2 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
-//		public const string thisConnection = "DRIVER={mySql ODBC 5.2 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_dbo";
-//		public const string BobConnection = "DRIVER={mySql ODBC 5.2 Unicode Driver};SERVER=202.20.3.31;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_dbo";
-//		public const string Dev1TzConnection = "DRIVER={mySql ODBC 5.2 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=TimeZoneInfo_dbo";
+		public string KateConnection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
+		public const string Dev1Connection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
+//		public const string thisConnection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_dbo";
+//		public const string BobConnection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=202.20.3.31;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_dbo";
+//		public const string Dev1TzConnection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=TimeZoneInfo_dbo";
 		public string thisConnectionAndLogFileName = "KDLConnect.txt";
 		public string thisFileFolder = @"c:\";
 		public string thisConnection = Dev1Connection;
@@ -1549,7 +1549,7 @@ namespace TestApp
 
 		private void button46_Click(object sender, System.EventArgs e)
 		{
-			KateConnection = "DRIVER={mySql ODBC 5.2 Unicode Driver};SERVER=" + txtServer.Text +";port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
+			KateConnection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=" + txtServer.Text +";port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
 			thisConnection = KateConnection;
 		}
 
