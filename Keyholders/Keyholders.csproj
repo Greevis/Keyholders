@@ -1,0 +1,385 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>7.10.6030</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{29697331-D0B1-49BA-8A7F-133C3DF8229D}</ProjectGuid>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon />
+    <AssemblyKeyContainerName />
+    <AssemblyName>Keyholders64</AssemblyName>
+    <AssemblyOriginatorKeyFile>Keyholders64.snk</AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Keyholders</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject />
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <OldToolsVersion>0.0</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>..\..\..\..\Output64\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile />
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>/Keyholders64.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn />
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>true</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\..\..\..\Output64\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile />
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>/Keyholders64.xml</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn />
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>true</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BCL.easyPDF6.Interop.EasyPDFLoader">
+      <Name>BCL.easyPDF6.Interop.EasyPDFLoader</Name>
+      <HintPath>F:\Output\BCL.easyPDF6.Interop.EasyPDFLoader.dll</HintPath>
+    </Reference>
+    <Reference Include="BCL.easyPDF6.Interop.EasyPDFPrinter">
+      <Name>BCL.easyPDF6.Interop.EasyPDFPrinter</Name>
+      <HintPath>F:\Output\BCL.easyPDF6.Interop.EasyPDFPrinter.dll</HintPath>
+    </Reference>
+    <Reference Include="BCL.easyPDF6.Interop.EasyPDFProcessor">
+      <Name>BCL.easyPDF6.Interop.EasyPDFProcessor</Name>
+      <HintPath>F:\Output\BCL.easyPDF6.Interop.EasyPDFProcessor.dll</HintPath>
+    </Reference>
+    <Reference Include="CrystalDecisions.CrystalReports.Engine, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.ReportSource, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="CrystalDecisions.Shared, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="Resources64">
+      <HintPath>..\..\..\..\Output64\Resources64.dll</HintPath>
+    </Reference>
+    <Reference Include="SevenZipSharp">
+      <HintPath>..\..\..\..\Output64\SevenZipSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Drawing">
+      <Name>System.Drawing</Name>
+    </Reference>
+    <Reference Include="System.Web">
+      <Name>System.Web</Name>
+    </Reference>
+    <Reference Include="System.Web.Services">
+      <Name>System.Web.Services</Name>
+      <HintPath>F:\Output\System.Web.Services.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsAddress.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsCardType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsCCAttempt.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsChangeData.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsCity.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsCompanyType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsCorrespondenceSendToCustomer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsCountry.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsCustomer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsCustomerGroup.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsCustomerPaymentMethodType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsDefinedContent.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsDefinedContentImage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsFreightRule.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsFrSzCgP.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsHighRiskGood.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsImage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsImportData.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsItem.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsKeyBase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsNav.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsOrder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsOrderStatus.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsPaymentMethodType.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsPerson.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsPersonPremiseRole.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsPhoneNumber.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsPremise.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsProduct.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsProductCategory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsProductCustomerGroupPrice.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsProductInCategory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsReport.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsSearch.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsSearchRecord.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsServiceProvider.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsSetting.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsShippingZone.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsSPPremiseRole.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsState.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsTransaction.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsUser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clsUserDefinedText.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="rptCustomerCorrespondenceSubCoverLetter.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCustomerCorrespondenceSubCoverLetter.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="rptCustomerCorrespondenceSubInvoices.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCustomerCorrespondenceSubInvoices.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="rptCustomerCorrespondenceSubPeople.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCustomerCorrespondenceSubPeople.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="rptCustomerCorrespondenceSubPremises.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCustomerCorrespondenceSubPremises.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="rptCustomerCorrespondenceSubPromotion.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCustomerCorrespondenceSubPromotion.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="rptCustomerCorrespondenceSubServiceProviders.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCustomerCorrespondenceSubServiceProviders.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="rptCustomerCorrespondenceSubServiceProvidersOld.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCustomerCorrespondenceSubServiceProvidersOld.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="rptCustomerCorrespondenceSubStatements.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>rptCustomerCorrespondenceSubStatements.rpt</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Content Include="Key_Creates.sql" />
+    <Content Include="Key_Data.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Keyholders64.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="rptCustomerCorrespondenceSubCoverLetter.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCustomerCorrespondenceSubCoverLetter.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="rptCustomerCorrespondenceSubInvoices.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCustomerCorrespondenceSubInvoices.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="rptCustomerCorrespondenceSubPeople.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCustomerCorrespondenceSubPeople.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="rptCustomerCorrespondenceSubPremises.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCustomerCorrespondenceSubPremises.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="rptCustomerCorrespondenceSubPromotion.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCustomerCorrespondenceSubPromotion.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="rptCustomerCorrespondenceSubServiceProviders.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCustomerCorrespondenceSubServiceProviders.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="rptCustomerCorrespondenceSubServiceProvidersOld.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCustomerCorrespondenceSubServiceProvidersOld.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="rptCustomerCorrespondenceSubStatements.rpt">
+      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
+      <LastGenOutput>rptCustomerCorrespondenceSubStatements.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{C0C07587-41A7-46C8-8FBD-3F9C8EBE2DDC}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent />
+    <PostBuildEvent />
+  </PropertyGroup>
+</Project>
