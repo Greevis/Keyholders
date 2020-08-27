@@ -3,9 +3,8 @@ using System.Runtime.InteropServices;
 using System.Data;
 using Resources;
 using System.Data.Odbc;
-//using MySql.Data;
-using CrystalDecisions.CrystalReports.Engine;
-using CrystalDecisions.Shared;
+//using CrystalDecisions.CrystalReports.Engine;
+//using CrystalDecisions.Shared;
 
 namespace Keyholders
 {
@@ -16,25 +15,19 @@ namespace Keyholders
 	public class clsReport : clsKeyBase
 	{	
 		#region Initialization
-		private ReportDocument reportDocument = new ReportDocument();
 
-		private TableLogOnInfo crTableLogOnInfo = new TableLogOnInfo();
-		private ConnectionInfo crConnectionInfo = new ConnectionInfo(); 
-		private CrystalDecisions.CrystalReports.Engine.Database crDatabase;
+		//private ReportDocument reportDocument = new ReportDocument();
+
+  //      private TableLogOnInfo crTableLogOnInfo = new TableLogOnInfo();
+  //      private ConnectionInfo crConnectionInfo = new ConnectionInfo();
+  //      private CrystalDecisions.CrystalReports.Engine.Database crDatabase;
 		
-		private CrystalDecisions.CrystalReports.Engine.Tables crTables;
-		private CrystalDecisions.CrystalReports.Engine.Section crSection;
-		private CrystalDecisions.CrystalReports.Engine.SubreportObject crSubreportObject;
-		private CrystalDecisions.CrystalReports.Engine.ReportDocument SubReport;
+		//private CrystalDecisions.CrystalReports.Engine.Tables crTables;
+		//private CrystalDecisions.CrystalReports.Engine.Section crSection;
+		//private CrystalDecisions.CrystalReports.Engine.SubreportObject crSubreportObject;
+		//private CrystalDecisions.CrystalReports.Engine.ReportDocument SubReport;
 
-//		MySql.Data.MySqlClient.MySqlConnection conn;
-//		MySql.Data.MySqlClient.MySqlCommand cmd = new MySql.Data.MySqlClient.MySqlCommand();
-//		MySql.Data.MySqlClient.MySqlDataAdapter adap;
-
-
-//		OdbcConnection conn;
 		OdbcCommand cmd = new OdbcCommand();
-//		OdbcDataAdapter adap;
 
 		private DataSet ds = new DataSet();
 		
@@ -119,11 +112,11 @@ namespace Keyholders
 			
 			if (localRecords.GetRecords(sqlQuery) > 0)
 			{
-				reportDocument.Load(thisReportPath + "rptCustomerCorrespondence" +".rpt");
-
 				//set the report with the dataset
-				reportDocument.SetDataSource(localRecords.dataTable);
-				reportDocument.SetParameterValue("IsEmail", "Yes");
+
+				//reportDocument.Load(thisReportPath + "rptCustomerCorrespondence" +".rpt");
+				//reportDocument.SetDataSource(localRecords.dataTable);
+				//reportDocument.SetParameterValue("IsEmail", "Yes");
 
 				SetUpDataSource();
 										
@@ -133,32 +126,6 @@ namespace Keyholders
 			}
 
 			return ReportData;
-
-////		    conn.Open();
-//			clsPersonPremiseRole thisPersonPremiseRole = new clsPersonPremiseRole(thisDbType, localRecords.dbConnection);
-//			thisPersonPremiseRole.GetPendingCorrespondence();
-//
-////			cmd.CommandText = "SELECT tblUser.UserId, tblUser.Password,tblUser.Email FROM tblUser";
-////			cmd.Connection = conn;
-////
-////			adap = new OdbcDataAdapter();
-////			adap.SelectCommand = cmd;
-////			adap.Fill(ds);
-//
-////			if (ds.Tables[0].Rows.Count >0 )
-////			{
-//				reportDocument.Load(@"C:\Documents and Settings\Graham\My Documents\Visual Studio Projects\Keyholders\Keyholders\" + "rptCorrespondence.rpt");
-//
-//				reportDocument.SetDataSource(thisPersonPremiseRole.localRecords.dataTable);
-//
-//				GenerateReport(FileName);
-//
-//				ReportData = 1;
-////			}
-//
-////			conn.Close();
-//
-//			return ReportData;
 		}
 
 		#endregion
@@ -212,15 +179,15 @@ namespace Keyholders
 			
 			if (localRecords.GetRecords(sqlQuery) > 0)
 			{
-				reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubCoverLetter" +".rpt");
-
 				//set the report with the dataset
-				reportDocument.SetDataSource(localRecords.dataTable);
 
-				if (isEmail == 1)
-					reportDocument.SetParameterValue("IsEmail", "Yes");
-				else
-					reportDocument.SetParameterValue("IsEmail", "No");
+				//reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubCoverLetter" +".rpt");
+				//reportDocument.SetDataSource(localRecords.dataTable);
+
+				//if (isEmail == 1)
+				//	reportDocument.SetParameterValue("IsEmail", "Yes");
+				//else
+				//	reportDocument.SetParameterValue("IsEmail", "No");
 
 				SetUpDataSource();
 										
@@ -275,15 +242,14 @@ namespace Keyholders
 			
 			if (localRecords.GetRecords(sqlQuery) > 0)
 			{
-				reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubPremises" +".rpt");
-
 				//set the report with the dataset
-				reportDocument.SetDataSource(localRecords.dataTable);
+				//reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubPremises" +".rpt");
+				//reportDocument.SetDataSource(localRecords.dataTable);
 				
-				if (isEmail == 1)
-					reportDocument.SetParameterValue("IsEmail", "Yes");
-				else
-					reportDocument.SetParameterValue("IsEmail", "No");
+				//if (isEmail == 1)
+				//	reportDocument.SetParameterValue("IsEmail", "Yes");
+				//else
+				//	reportDocument.SetParameterValue("IsEmail", "No");
 
 				SetUpDataSource();
 										
@@ -327,15 +293,15 @@ namespace Keyholders
 			
 			if (localRecords.GetRecords(sqlQuery) > 0)
 			{
-				reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubPeople" +".rpt");
-
 				//set the report with the dataset
-				reportDocument.SetDataSource(localRecords.dataTable);
+
+				//reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubPeople" +".rpt");
+				//reportDocument.SetDataSource(localRecords.dataTable);
 				
-				if (isEmail == 1)
-					reportDocument.SetParameterValue("IsEmail", "Yes");
-				else
-					reportDocument.SetParameterValue("IsEmail", "No");
+				//if (isEmail == 1)
+				//	reportDocument.SetParameterValue("IsEmail", "Yes");
+				//else
+				//	reportDocument.SetParameterValue("IsEmail", "No");
 
 				SetUpDataSource();
 										
@@ -380,15 +346,14 @@ namespace Keyholders
 			
 			if (localRecords.GetRecords(sqlQuery) > 0)
 			{
-				reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubServiceProviders" +".rpt");
-
 				//set the report with the dataset
-				reportDocument.SetDataSource(localRecords.dataTable);
+				//reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubServiceProviders" +".rpt");
+				//reportDocument.SetDataSource(localRecords.dataTable);
 				
-				if (isEmail == 1)
-					reportDocument.SetParameterValue("IsEmail", "Yes");
-				else
-					reportDocument.SetParameterValue("IsEmail", "No");
+				//if (isEmail == 1)
+				//	reportDocument.SetParameterValue("IsEmail", "Yes");
+				//else
+				//	reportDocument.SetParameterValue("IsEmail", "No");
 
 				SetUpDataSource();
 										
@@ -447,15 +412,14 @@ namespace Keyholders
 			
 			if (localRecords.GetRecords(sqlQuery) > 0)
 			{
-				reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubInvoices" +".rpt");
-
 				//set the report with the dataset
-				reportDocument.SetDataSource(localRecords.dataTable);
+				//reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubInvoices" +".rpt");
+				//reportDocument.SetDataSource(localRecords.dataTable);
 				
-				if (isEmail == 1)
-					reportDocument.SetParameterValue("IsEmail", "Yes");
-				else
-					reportDocument.SetParameterValue("IsEmail", "No");
+				//if (isEmail == 1)
+				//	reportDocument.SetParameterValue("IsEmail", "Yes");
+				//else
+				//	reportDocument.SetParameterValue("IsEmail", "No");
 
 				SetUpDataSource();
 										
@@ -500,15 +464,15 @@ namespace Keyholders
 			
 			if (localRecords.GetRecords(sqlQuery) > 0)
 			{
-				reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubStatements" +".rpt");
-
 				//set the report with the dataset
-				reportDocument.SetDataSource(localRecords.dataTable);
+
+				//reportDocument.Load(thisReportPath + "rptCustomerCorrespondenceSubStatements" +".rpt");
+				//reportDocument.SetDataSource(localRecords.dataTable);
 				
-				if (isEmail == 1)
-					reportDocument.SetParameterValue("IsEmail", "Yes");
-				else
-					reportDocument.SetParameterValue("IsEmail", "No");
+				//if (isEmail == 1)
+				//	reportDocument.SetParameterValue("IsEmail", "Yes");
+				//else
+				//	reportDocument.SetParameterValue("IsEmail", "No");
 
 				SetUpDataSource();
 										
@@ -528,63 +492,58 @@ namespace Keyholders
 		
 		private void GenerateReport(string FileName)
 		{
-			reportDocument.PrintOptions.PaperSize = PaperSize.PaperA4;
-			PageMargins thisPageMargin = new PageMargins(0,0,0,0);
-//			PageMargins thisPageMargin = new PageMargins(254,254,254,254);
-			reportDocument.PrintOptions.ApplyPageMargins(thisPageMargin);
-
-			//			reportDocument.PrintOptions.PageMargins.rightMargin = 0;
-//			reportDocument.PrintOptions.PageMargins.topMargin = 0;
-//			reportDocument.PrintOptions.PageMargins.bottomMargin = 0;
+			//reportDocument.PrintOptions.PaperSize = PaperSize.PaperA4;
+			//PageMargins thisPageMargin = new PageMargins(0,0,0,0);
+			//reportDocument.PrintOptions.ApplyPageMargins(thisPageMargin);
       									
-			if (thisOutputPath == "test")
-			{
-				#region used just for decarlos
+			//if (thisOutputPath == "test")
+			//{
+			//	#region used just for decarlos
 										
-				CrystalDecisions.Shared.ExportFormatType fileFormat = new CrystalDecisions.Shared.ExportFormatType();
-				switch(FileName.Substring((FileName.Length - 3),3))
-				{
-					case "pdf":
-						reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat, thisRootPath + FileName);
-						break;
-					case "xls":
-						reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.Excel, thisRootPath  + FileName);
-						break;
-					case "doc":
-						reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, thisRootPath + FileName);
-						break;
-					case "htm":
-						reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.HTML40, thisRootPath + FileName);
-						break;
-					case "rtf":
-						reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.RichText, thisRootPath + FileName);
-						break;
-				}
-				#endregion
-			}
-			else
-			{					
-				switch(FileName.Substring((FileName.Length - 3),3))
-				{
-					case "pdf":
-						reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat, thisRootPath + thisOutputPath + FileName);
-						break;
-					case "xls":
-						reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.Excel, thisRootPath + thisOutputPath + FileName);
-						break;
-					case "doc":
-						reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, thisRootPath + thisOutputPath + FileName);
-						break;
-					case "htm":
-						reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.HTML40, thisRootPath + thisOutputPath + FileName);
-						break;
-					case "rtf":
-						reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.RichText, thisRootPath + thisOutputPath + FileName);
-						break;
-				}
-			}
-			reportDocument.Close();
-			reportDocument.Dispose();
+			//	CrystalDecisions.Shared.ExportFormatType fileFormat = new CrystalDecisions.Shared.ExportFormatType();
+			//	switch(FileName.Substring((FileName.Length - 3),3))
+			//	{
+			//		case "pdf":
+			//			reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat, thisRootPath + FileName);
+			//			break;
+			//		case "xls":
+			//			reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.Excel, thisRootPath  + FileName);
+			//			break;
+			//		case "doc":
+			//			reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, thisRootPath + FileName);
+			//			break;
+			//		case "htm":
+			//			reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.HTML40, thisRootPath + FileName);
+			//			break;
+			//		case "rtf":
+			//			reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.RichText, thisRootPath + FileName);
+			//			break;
+			//	}
+			//	#endregion
+			//}
+			//else
+			//{					
+			//	switch(FileName.Substring((FileName.Length - 3),3))
+			//	{
+			//		case "pdf":
+			//			reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat, thisRootPath + thisOutputPath + FileName);
+			//			break;
+			//		case "xls":
+			//			reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.Excel, thisRootPath + thisOutputPath + FileName);
+			//			break;
+			//		case "doc":
+			//			reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, thisRootPath + thisOutputPath + FileName);
+			//			break;
+			//		case "htm":
+			//			reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.HTML40, thisRootPath + thisOutputPath + FileName);
+			//			break;
+			//		case "rtf":
+			//			reportDocument.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.RichText, thisRootPath + thisOutputPath + FileName);
+			//			break;
+			//	}
+			//}
+			//reportDocument.Close();
+			//reportDocument.Dispose();
 		}
 
 		/// <summary>
@@ -603,46 +562,46 @@ namespace Keyholders
 		{
 			GetDbSettings();
 
-			crConnectionInfo.ServerName = strServer;
-			crConnectionInfo.DatabaseName = strDB;
-			crConnectionInfo.UserID = strUser;
-			crConnectionInfo.Password = strPass;
+			//crConnectionInfo.ServerName = strServer;
+			//crConnectionInfo.DatabaseName = strDB;
+			//crConnectionInfo.UserID = strUser;
+			//crConnectionInfo.Password = strPass;
 
-			crDatabase = reportDocument.Database;
-			crTables = crDatabase.Tables;
+			//crDatabase = reportDocument.Database;
+			//crTables = crDatabase.Tables;
 				
-			foreach(CrystalDecisions.CrystalReports.Engine.Table crTable in crTables)
-			{
-				crTableLogOnInfo = crTable.LogOnInfo;
-				crTableLogOnInfo.ConnectionInfo = crConnectionInfo;
-				crTable.ApplyLogOnInfo(crTableLogOnInfo);
-			}
+			//foreach(CrystalDecisions.CrystalReports.Engine.Table crTable in crTables)
+			//{
+			//	crTableLogOnInfo = crTable.LogOnInfo;
+			//	crTableLogOnInfo.ConnectionInfo = crConnectionInfo;
+			//	crTable.ApplyLogOnInfo(crTableLogOnInfo);
+			//}
 	
 	
-			for(int i=0; reportDocument.ReportDefinition.Sections.Count > i; i++)
-			{
-				crSection = reportDocument.ReportDefinition.Sections[i];
+			//for(int i=0; reportDocument.ReportDefinition.Sections.Count > i; i++)
+			//{
+			//	crSection = reportDocument.ReportDefinition.Sections[i];
 	
-				for (int j=0; crSection.ReportObjects.Count > j ; j++)
-				{
-					if (crSection.ReportObjects[j].Kind == ReportObjectKind.SubreportObject)
-					{
-						crSubreportObject = (SubreportObject) crSection.ReportObjects[j];
-						SubReport = crSubreportObject.OpenSubreport(crSubreportObject.SubreportName);
-						crTables = SubReport.Database.Tables;
+			//	for (int j=0; crSection.ReportObjects.Count > j ; j++)
+			//	{
+			//		if (crSection.ReportObjects[j].Kind == ReportObjectKind.SubreportObject)
+			//		{
+			//			crSubreportObject = (SubreportObject) crSection.ReportObjects[j];
+			//			SubReport = crSubreportObject.OpenSubreport(crSubreportObject.SubreportName);
+			//			crTables = SubReport.Database.Tables;
 	
-						foreach(CrystalDecisions.CrystalReports.Engine.Table crT in crTables)
-						{					
-							crTableLogOnInfo.ConnectionInfo.ServerName = strServer;
-							crTableLogOnInfo.ConnectionInfo.DatabaseName = strDB;
-							crTableLogOnInfo.ConnectionInfo.UserID = strUser;
-							crTableLogOnInfo.ConnectionInfo.Password = strPass;
+			//			foreach(CrystalDecisions.CrystalReports.Engine.Table crT in crTables)
+			//			{					
+			//				crTableLogOnInfo.ConnectionInfo.ServerName = strServer;
+			//				crTableLogOnInfo.ConnectionInfo.DatabaseName = strDB;
+			//				crTableLogOnInfo.ConnectionInfo.UserID = strUser;
+			//				crTableLogOnInfo.ConnectionInfo.Password = strPass;
 	
-							crT.ApplyLogOnInfo(crTableLogOnInfo);
-						}
-					}
-				}
-			}
+			//				crT.ApplyLogOnInfo(crTableLogOnInfo);
+			//			}
+			//		}
+			//	}
+			//}
 		}
 
 		private void GetDbSettings()

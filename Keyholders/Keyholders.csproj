@@ -72,7 +72,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\..\..\..\Output64\</OutputPath>
+    <OutputPath>..\..\..\Output2017\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <BaseAddress>285212672</BaseAddress>
     <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
@@ -84,7 +84,7 @@
     <NoStdLib>false</NoStdLib>
     <NoWarn />
     <Optimize>true</Optimize>
-    <RegisterForComInterop>true</RegisterForComInterop>
+    <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
@@ -96,22 +96,15 @@
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BCL.easyPDF6.Interop.EasyPDFLoader">
-      <Name>BCL.easyPDF6.Interop.EasyPDFLoader</Name>
-      <HintPath>F:\Output\BCL.easyPDF6.Interop.EasyPDFLoader.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="BCL.easyPDF6.Interop.EasyPDFPrinter">
-      <Name>BCL.easyPDF6.Interop.EasyPDFPrinter</Name>
-      <HintPath>F:\Output\BCL.easyPDF6.Interop.EasyPDFPrinter.dll</HintPath>
-    </Reference>
-    <Reference Include="BCL.easyPDF6.Interop.EasyPDFProcessor">
-      <Name>BCL.easyPDF6.Interop.EasyPDFProcessor</Name>
-      <HintPath>F:\Output\BCL.easyPDF6.Interop.EasyPDFProcessor.dll</HintPath>
-    </Reference>
-    <Reference Include="CrystalDecisions.CrystalReports.Engine, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
-    <Reference Include="CrystalDecisions.ReportSource, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
-    <Reference Include="CrystalDecisions.Shared, Version=13.0.2000.0, Culture=neutral, PublicKeyToken=692fbea5521e1304, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Resources64">
       <HintPath>..\..\..\..\Output64\Resources64.dll</HintPath>
     </Reference>
@@ -271,54 +264,6 @@
     <Compile Include="clsUserDefinedText.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="rptCustomerCorrespondenceSubCoverLetter.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>rptCustomerCorrespondenceSubCoverLetter.rpt</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="rptCustomerCorrespondenceSubInvoices.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>rptCustomerCorrespondenceSubInvoices.rpt</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="rptCustomerCorrespondenceSubPeople.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>rptCustomerCorrespondenceSubPeople.rpt</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="rptCustomerCorrespondenceSubPremises.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>rptCustomerCorrespondenceSubPremises.rpt</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="rptCustomerCorrespondenceSubPromotion.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>rptCustomerCorrespondenceSubPromotion.rpt</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="rptCustomerCorrespondenceSubServiceProviders.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>rptCustomerCorrespondenceSubServiceProviders.rpt</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="rptCustomerCorrespondenceSubServiceProvidersOld.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>rptCustomerCorrespondenceSubServiceProvidersOld.rpt</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="rptCustomerCorrespondenceSubStatements.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>rptCustomerCorrespondenceSubStatements.rpt</DependentUpon>
-      <SubType>Component</SubType>
-    </Compile>
     <Content Include="Key_Creates.sql" />
     <Content Include="Key_Data.sql" />
   </ItemGroup>
@@ -340,41 +285,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Keyholders64.snk" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="rptCustomerCorrespondenceSubCoverLetter.rpt">
-      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>rptCustomerCorrespondenceSubCoverLetter.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="rptCustomerCorrespondenceSubInvoices.rpt">
-      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>rptCustomerCorrespondenceSubInvoices.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="rptCustomerCorrespondenceSubPeople.rpt">
-      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>rptCustomerCorrespondenceSubPeople.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="rptCustomerCorrespondenceSubPremises.rpt">
-      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>rptCustomerCorrespondenceSubPremises.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="rptCustomerCorrespondenceSubPromotion.rpt">
-      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>rptCustomerCorrespondenceSubPromotion.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="rptCustomerCorrespondenceSubServiceProviders.rpt">
-      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>rptCustomerCorrespondenceSubServiceProviders.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="rptCustomerCorrespondenceSubServiceProvidersOld.rpt">
-      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>rptCustomerCorrespondenceSubServiceProvidersOld.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="rptCustomerCorrespondenceSubStatements.rpt">
-      <Generator>CrystalDecisions.VSDesigner.CodeGen.ReportCodeGenerator</Generator>
-      <LastGenOutput>rptCustomerCorrespondenceSubStatements.cs</LastGenOutput>
-    </EmbeddedResource>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{C0C07587-41A7-46C8-8FBD-3F9C8EBE2DDC}" />

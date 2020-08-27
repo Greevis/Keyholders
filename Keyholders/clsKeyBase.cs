@@ -4,9 +4,9 @@ using System.Runtime.InteropServices;
 using System.Data.Odbc;
 using Resources;
 using System.IO;
-using BCL.easyPDF6.Interop.EasyPDFPrinter;
-using BCL.easyPDF6.Interop.EasyPDFLoader;
-using BCL.easyPDF6.Interop.EasyPDFProcessor;
+//using BCL.easyPDF6.Interop.EasyPDFPrinter;
+//using BCL.easyPDF6.Interop.EasyPDFLoader;
+//using BCL.easyPDF6.Interop.EasyPDFProcessor;
 using System.Text;
 using System.Collections;
 using System.Text.RegularExpressions;
@@ -4510,17 +4510,18 @@ namespace Keyholders
 		/// <returns></returns>
 		public int BGColour()
 		{
-			Type type = Type.GetTypeFromProgID("easyPDF.Printer.5");
-			Printer oPrinter = (Printer)Activator.CreateInstance(type);
+			//Type type = Type.GetTypeFromProgID("easyPDF.Printer.5");
+			//Printer oPrinter = (Printer)Activator.CreateInstance(type);
 
-			IEPrintJob oPrintJob = oPrinter.IEPrintJob;
-			IESetting oIESetting = oPrintJob.IESetting;
+			//IEPrintJob oPrintJob = oPrinter.IEPrintJob;
+			//IESetting oIESetting = oPrintJob.IESetting;
 
-			if (oIESetting.PrintBGColor == true)
-				return 1;
-			else 
-				return 0;
+			//if (oIESetting.PrintBGColor == true)
+			//	return 1;
+			//else 
+			//	return 0;
 
+			return 0;
 		}
 
 		/// <summary>
@@ -4549,104 +4550,99 @@ namespace Keyholders
 			//Start of Convert Function
 			bool success = false;
 
-//			Type printerType = Type.GetTypeFromProgID("easyPDF.Printer.5");
-			Type loaderType = Type.GetTypeFromProgID("easyPDF.Loader.5");
+//			Type loaderType = Type.GetTypeFromProgID("easyPDF.Loader.5");
 
-			Loader oLoader = (Loader) Activator.CreateInstance(loaderType);
+//			Loader oLoader = (Loader) Activator.CreateInstance(loaderType);
 
-			Printer oPrinter = (Printer) oLoader.LoadObject("easyPDF.Printer.5");
+//			Printer oPrinter = (Printer) oLoader.LoadObject("easyPDF.Printer.5");
 
-//			Type type = Type.GetTypeFromProgID("easyPDF.Printer.5");
-//			Printer oPrinter = (Printer)Activator.CreateInstance(type);
+//			IEPrintJob oPrintJob;
+//			PDFSetting oPDFSetting;
+//			IESetting oIESetting;
 
+//			oPrintJob = null;
+//			oPDFSetting = null;
+//			oIESetting = null;
 
-			IEPrintJob oPrintJob;
-			PDFSetting oPDFSetting;
-			IESetting oIESetting;
+//			try
+//			{
+//				oPrintJob = oPrinter.IEPrintJob;
 
-			oPrintJob = null;
-			oPDFSetting = null;
-			oIESetting = null;
+//				oIESetting = oPrintJob.IESetting;
+//				oPDFSetting = oPrintJob.PDFSetting;			
 
-			try
-			{
-				oPrintJob = oPrinter.IEPrintJob;
+//				//Add Header and Footer
+//				if (HeaderImage != "")
+//				{
+//					oPDFSetting.set_Stamp(0, true);
+//					oPDFSetting.set_StampFileName(0, HeaderImage);
+//					oPDFSetting.set_StampFirstPageOnly(0, false);
+//					oPDFSetting.set_StampHPosition(0, 0);
+//					oPDFSetting.set_StampVPosition(0, 0);
+//				}
 
-				oIESetting = oPrintJob.IESetting;
-				oPDFSetting = oPrintJob.PDFSetting;			
+//				if (FooterImage != "")
+//				{
+//					oPDFSetting.set_Stamp(1, true);
+//					oPDFSetting.set_StampFileName(1, FooterImage);
+//					oPDFSetting.set_StampFirstPageOnly(1, false);
+//					oPDFSetting.set_StampHPosition(1, 0);
+//					oPDFSetting.set_StampVPosition(1, BCL.easyPDF6.Interop.EasyPDFPrinter.prnStampVPosition.PRN_STAMP_VPOS_BOTTOM);
+//				}
 
-				//Add Header and Footer
-				if (HeaderImage != "")
-				{
-					oPDFSetting.set_Stamp(0, true);
-					oPDFSetting.set_StampFileName(0, HeaderImage);
-					oPDFSetting.set_StampFirstPageOnly(0, false);
-					oPDFSetting.set_StampHPosition(0, 0);
-					oPDFSetting.set_StampVPosition(0, 0);
-				}
+////				double BottomMargin = 1.40;
+////				double TopMargin = 0.5;
+////				oIESetting.MarginLeft = 0;
+////				oIESetting.MarginRight = 0;
 
-				if (FooterImage != "")
-				{
-					oPDFSetting.set_Stamp(1, true);
-					oPDFSetting.set_StampFileName(1, FooterImage);
-					oPDFSetting.set_StampFirstPageOnly(1, false);
-					oPDFSetting.set_StampHPosition(1, 0);
-					oPDFSetting.set_StampVPosition(1, BCL.easyPDF6.Interop.EasyPDFPrinter.prnStampVPosition.PRN_STAMP_VPOS_BOTTOM);
-				}
-
-//				double BottomMargin = 1.40;
-//				double TopMargin = 0.5;
-//				oIESetting.MarginLeft = 0;
-//				oIESetting.MarginRight = 0;
-
-				//IE Print Settings
-				oIESetting.Footer = "";
-				oIESetting.Header = "";
-				oIESetting.MarginBottom = BottomMargin;
-				oIESetting.MarginLeft = LeftMargin;
-				oIESetting.MarginRight = RightMargin;
-				oIESetting.MarginTop = TopMargin;
-				oIESetting.PrintBGColor = true;
-				oIESetting.Save();
+//				//IE Print Settings
+//				oIESetting.Footer = "";
+//				oIESetting.Header = "";
+//				oIESetting.MarginBottom = BottomMargin;
+//				oIESetting.MarginLeft = LeftMargin;
+//				oIESetting.MarginRight = RightMargin;
+//				oIESetting.MarginTop = TopMargin;
+//				oIESetting.PrintBGColor = true;
+//				oIESetting.Save();
 
 
-				//PDF Meta Data
-				oPDFSetting.MetaData = true;
-				oPDFSetting.MetaDataAuthor = "Graham Mann";
-				oPDFSetting.MetaDataCreator = "Welman Tachnologies Ltd";
-				oPDFSetting.MetaDataKeywords = "PDF";
-				oPDFSetting.MetaDataSubject = "KDL Correspondence";
-				oPDFSetting.MetaDataTitle = "Test";
+//				//PDF Meta Data
+//				oPDFSetting.MetaData = true;
+//				oPDFSetting.MetaDataAuthor = "Graham Mann";
+//				oPDFSetting.MetaDataCreator = "Welman Tachnologies Ltd";
+//				oPDFSetting.MetaDataKeywords = "PDF";
+//				oPDFSetting.MetaDataSubject = "KDL Correspondence";
+//				oPDFSetting.MetaDataTitle = "Test";
 
-				Encoding ascii = Encoding.ASCII;
+//				Encoding ascii = Encoding.ASCII;
 				
-				byte[] theseBytes = ascii.GetBytes(Html.TrimEnd());
+//				byte[] theseBytes = ascii.GetBytes(Html.TrimEnd());
 
-				byte[] oPDF = (byte[]) oPrintJob.PrintOut3(theseBytes, "HTML");
+//				byte[] oPDF = (byte[]) oPrintJob.PrintOut3(theseBytes, "HTML");
 				
-				FileStream dataFileStream = new FileStream(OutputPdfPathFile, FileMode.Create, FileAccess.Write);
-				BinaryWriter binWriter = new BinaryWriter(dataFileStream, ascii);
+//				FileStream dataFileStream = new FileStream(OutputPdfPathFile, FileMode.Create, FileAccess.Write);
+//				BinaryWriter binWriter = new BinaryWriter(dataFileStream, ascii);
 
-				binWriter.Write(oPDF);
-				binWriter.Close();
-				dataFileStream.Close();
-				success = true;
-			}
-			catch(System.Runtime.InteropServices.COMException err)
-			{
-//				MessageBox.Show(err.Message);
+//				binWriter.Write(oPDF);
+//				binWriter.Close();
+//				dataFileStream.Close();
+//				success = true;
+//			}
+//			catch(System.Runtime.InteropServices.COMException err)
+//			{
+////				MessageBox.Show(err.Message);
 
-				if(err.ErrorCode == (int)prnResult.PRN_R_CONVERSION_FAILED && oPrintJob != null)
-				{
-//					MessageBox.Show(oPrintJob.ConversionResultMessage);
+//				if(err.ErrorCode == (int)prnResult.PRN_R_CONVERSION_FAILED && oPrintJob != null)
+//				{
+////					MessageBox.Show(oPrintJob.ConversionResultMessage);
 
-					prnConversionResult result = oPrintJob.ConversionResult;
-					if(result == prnConversionResult.PRN_CR_CONVERSION || result == prnConversionResult.PRN_CR_CONVERSION_INIT ||result == prnConversionResult.PRN_CR_CONVERSION_PRINT)
-					{
-//						MessageBox.Show(oPrintJob.PrinterResultMessage);
-					}
-				}
-			}
+//					prnConversionResult result = oPrintJob.ConversionResult;
+//					if(result == prnConversionResult.PRN_CR_CONVERSION || result == prnConversionResult.PRN_CR_CONVERSION_INIT ||result == prnConversionResult.PRN_CR_CONVERSION_PRINT)
+//					{
+////						MessageBox.Show(oPrintJob.PrinterResultMessage);
+//					}
+//				}
+//			}
 			return success;
 
 		}
@@ -4661,11 +4657,11 @@ namespace Keyholders
 		/// </summary>
 		public void MergePDFs()
 		{
-			Type loaderType = Type.GetTypeFromProgID("easyPDF.Loader.6");
+			//Type loaderType = Type.GetTypeFromProgID("easyPDF.Loader.6");
 
-			Loader oLoader = (Loader) Activator.CreateInstance(loaderType);
+			//Loader oLoader = (Loader) Activator.CreateInstance(loaderType);
 
-			Printer oPrinter = (Printer) oLoader.LoadObject("easyPDF.Printer.6");
+			//Printer oPrinter = (Printer) oLoader.LoadObject("easyPDF.Printer.6");
 		}
 
 		/// <summary>
@@ -4707,20 +4703,18 @@ namespace Keyholders
 			{
 				Type type = Type.GetTypeFromProgID("easyPDF.PDFProcessor.6");
 
-				PDFProcessor oPDFProcessor = (PDFProcessor)Activator.CreateInstance(type);
+				//PDFProcessor oPDFProcessor = (PDFProcessor)Activator.CreateInstance(type);
 
-//				PDFProcessor oPDFProcessor = (PDFProcessor)Activator.CreateInstance(type);
-
-				// set the first select file as the first file to merge, then loop the rest
-				// of the files which are concatenated one by one
+				//// set the first select file as the first file to merge, then loop the rest
+				//// of the files which are concatenated one by one
 
 
-				string firstFile = files[0].ToString();
-				for(int counter = 1; counter < files.Count ; counter++)
-				{
-					oPDFProcessor.Merge(firstFile, files[counter].ToString(), outFileName);				
-					firstFile = outFileName;
-				}
+				//string firstFile = files[0].ToString();
+				//for(int counter = 1; counter < files.Count ; counter++)
+				//{
+				//	oPDFProcessor.Merge(firstFile, files[counter].ToString(), outFileName);				
+				//	firstFile = outFileName;
+				//}
 				
 					
 //				MessageBox.Show(files.Length.ToString() + " files merged!");
