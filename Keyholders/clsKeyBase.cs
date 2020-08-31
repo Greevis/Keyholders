@@ -12,6 +12,7 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using System.Net.Mail;
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace Keyholders
 {
@@ -2504,12 +2505,15 @@ namespace Keyholders
         /// </summary>
         public string logFileStem = @"W:\logs\OBSTPU\";
 
-        #endregion
+		#endregion
 
-        /// <summary>
-        /// Email Address Delimiter
-        /// </summary>
-        public string EmailAddressDelimiter = @",";
+		/// <summary>HashSalt</summary>
+		public const string HashSalt = "Th3r3wa$Aman";
+
+		/// <summary>
+		/// Email Address Delimiter
+		/// </summary>
+		public string EmailAddressDelimiter = @",";
 
 		/// <summary>
 		/// Base Queries for the 'GetBy' Methods
@@ -5951,6 +5955,184 @@ namespace Keyholders
 
 		#endregion
 
+		#region Hash Algorithms
+
+		#region GetHashedContent
+
+		/// <summary>GetSimpleHashedContent</summary>
+		/// <param name="ContentToHash">ContentToHash</param>
+		/// <returns>Returns an Md5 Hash Code of the supplied string</returns>
+		public string GetSimpleHashedContent(string ContentToHash)
+		{
+			return GetSimpleHashedContent(ContentToHash, "");
+		}
+
+		#endregion
+
+		#region GetSimpleHashedContent
+
+		/// <summary>GetSimpleHashedContent</summary>
+		/// <param name="ContentToHash">ContentToHash</param>
+		/// <param name="saltValue">saltValue</param>
+		/// <returns>Returns an Md5 Hash Code of the supplied string</returns>
+		public string GetSimpleHashedContent(string ContentToHash, string saltValue)
+		{
+			if (saltValue == "")
+				saltValue = HashSalt;
+
+			MD5 md5Hash = MD5.Create();
+			byte[] result = md5Hash.ComputeHash(Encoding.UTF8.GetBytes(ContentToHash + saltValue));
+
+
+			StringBuilder ResultingHashCode = new StringBuilder();
+			for (int counter = 0; counter < result.Length; counter++)
+			{
+				ResultingHashCode.Append(result[counter].ToString("X2"));
+			}
+
+			// And return it
+			return ResultingHashCode.ToString().ToLower();
+		}
+
+		#endregion
+
+		#region GetHashedContentWithoutSalt
+
+		/// <summary>GetHashedContent</summary>
+		/// <param name="ContentToHash">ContentToHash</param>
+		/// <returns>Returns an Md5 Hash Code of the supplied string</returns>
+		public string GetHashedContent(string ContentToHash)
+		{
+			return GetSimpleHashedContent(ContentToHash, "");
+		}
+
+		#endregion
+
+		#region GetHashedContentWithoutSalt
+
+		/// <summary>GetHashedContentWithSalt</summary>
+		/// <param name="ContentToHash">ContentToHash</param>
+		/// <param name="saltValue">saltValue</param>
+		/// <returns>Returns a PBKDF2Sha256GetBytes Hash Code of the supplied string</returns>
+		public string GetHashedContentWithSalt(string ContentToHash, string saltValue)
+		{
+			if (saltValue == "")
+				saltValue = HashSalt;
+
+			return GetHashedContentWithoutSalt(ContentToHash + saltValue);
+		}
+
+		#endregion
+
+		#region GetHashedContentWithoutSalt
+
+		/// <summary>GetHashedContentWithoutSalt</summary>
+		/// <param name="ContentToHash">ContentToHash</param>
+		/// <returns>Returns a PBKDF2Sha256GetBytes Hash Code of the supplied string</returns>
+		public string GetHashedContentWithoutSalt(string ContentToHash)
+		{
+
+			SHA256 SHA256Hash = SHA256.Create();
+			byte[] thisResult = SHA256Hash.ComputeHash(Encoding.UTF8.GetBytes(ContentToHash));
+
+			StringBuilder builder = new StringBuilder();
+			for (int counter = 0; counter < thisResult.Length; counter++)
+				builder.Append(thisResult[counter].ToString("x2"));
+
+			string retVal = builder.ToString();
+
+			return retVal;
+		}
+
+		#endregion
+
+		#region GetPBKDF2Sha256Hash
+
+		/// <summary>GetPBKDF2Sha256Hash</summary>
+		/// <param name="dklen">dklen</param>
+		/// <param name="toHash">toHash</param>
+		/// <param name="salt">salt</param>
+		/// <param name="iterationCount">iterationCount</param>
+		/// <returns>Hashed version</returns>
+		public string GetPBKDF2Sha256Hash(int dklen, string toHash, string salt, int iterationCount)
+		{
+			byte[] thisResult = PBKDF2Sha256GetBytes(dklen, Encoding.UTF32.GetBytes(toHash), Encoding.UTF32.GetBytes(salt), iterationCount);
+
+			string retVal = Encoding.UTF32.GetString(thisResult);
+
+			return retVal;
+
+		}
+
+		#endregion
+
+		#region PBKDF2Sha256GetBytes
+
+		/// <summary>
+		/// PBKDF2Sha256GetBytes, copied under licene from https://creativecommons.org/publicdomain/zero/1.0/ 
+		/// NOTE: The iteration count should be as high as possible without causing unreasonable delay.  Note also that the password and salt are byte arrays, not strings.  After use,
+		/// the password and salt should be cleared (with Array.Clear)
+		/// </summary>
+		/// <param name="dklen"></param>
+		/// <param name="password"></param>
+		/// <param name="salt"></param>
+		/// <param name="iterationCount"></param>
+		/// <returns></returns>
+		public static byte[] PBKDF2Sha256GetBytes(int dklen, byte[] password, byte[] salt, int iterationCount)
+		{
+			using (var hmac = new System.Security.Cryptography.HMACSHA256(password))
+			{
+				int hashLength = hmac.HashSize / 8;
+				if ((hmac.HashSize & 7) != 0)
+					hashLength++;
+				int keyLength = dklen / hashLength;
+				if ((long)dklen > (0xFFFFFFFFL * hashLength) || dklen < 0)
+					throw new ArgumentOutOfRangeException("dklen");
+				if (dklen % hashLength != 0)
+					keyLength++;
+				byte[] extendedkey = new byte[salt.Length + 4];
+				Buffer.BlockCopy(salt, 0, extendedkey, 0, salt.Length);
+				using (var ms = new System.IO.MemoryStream())
+				{
+					for (int i = 0; i < keyLength; i++)
+					{
+						extendedkey[salt.Length] = (byte)(((i + 1) >> 24) & 0xFF);
+						extendedkey[salt.Length + 1] = (byte)(((i + 1) >> 16) & 0xFF);
+						extendedkey[salt.Length + 2] = (byte)(((i + 1) >> 8) & 0xFF);
+						extendedkey[salt.Length + 3] = (byte)(((i + 1)) & 0xFF);
+						byte[] u = hmac.ComputeHash(extendedkey);
+						Array.Clear(extendedkey, salt.Length, 4);
+						byte[] f = u;
+						for (int j = 1; j < iterationCount; j++)
+						{
+							u = hmac.ComputeHash(u);
+							for (int k = 0; k < f.Length; k++)
+							{
+								f[k] ^= u[k];
+							}
+						}
+						ms.Write(f, 0, f.Length);
+						Array.Clear(u, 0, u.Length);
+						Array.Clear(f, 0, f.Length);
+					}
+					byte[] dk = new byte[dklen];
+					ms.Position = 0;
+					ms.Read(dk, 0, dklen);
+					ms.Position = 0;
+					for (long i = 0; i < ms.Length; i++)
+					{
+						ms.WriteByte(0);
+					}
+					Array.Clear(extendedkey, 0, extendedkey.Length);
+					return dk;
+				}
+			}
+
+		}
+
+		#endregion
+
+		#endregion
 
 	}
 }
