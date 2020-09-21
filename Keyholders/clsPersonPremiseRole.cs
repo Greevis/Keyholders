@@ -639,48 +639,66 @@ namespace Keyholders
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueriesNoChangeData;
 
-			queries[0].SelectColumns.Add("case when StickerRequired = 1" + crLf
-				+ "then " + Convert.ToInt32(correspondenceMedium.mail).ToString() + crLf
-				+ "when InvoiceRequired = 1 OR StatementRequired = 1 OR DetailsUpdateRequired = 1 OR CopyOfInvoiceRequired = 1 " + crLf
+			queries[0].SelectColumns.Add("case when DetailsUpdateRequired = 1 " + crLf
 				+ "then tblPerson.PreferredContactMethod"  + crLf
 				+ "else 0 " + crLf
 				+ "end as CorrespondenceMedium");
 
-			queries[0].SelectColumns.Add("case when (StickerRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
-				+ "then " + Convert.ToInt32(correspondenceType.stickerRequired).ToString() + crLf
-				+ "when (InvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
-				+ "then " + Convert.ToInt32(correspondenceType.invoice).ToString()  + crLf
-				+ "when (CopyOfInvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
-				+ "then " + Convert.ToInt32(correspondenceType.copyOfInvoice).ToString()  + crLf
-				+ "when (StatementRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
-				+ "then " + Convert.ToInt32(correspondenceType.statement).ToString()  + crLf
-				+ "when (DetailsUpdateRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ") " + crLf
-				+ "then " + Convert.ToInt32(correspondenceType.detailsUpdate).ToString()  + crLf
+			queries[0].SelectColumns.Add("case when (DetailsUpdateRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ") " + crLf
+				+ "then " + Convert.ToInt32(correspondenceType.detailsUpdate).ToString() + crLf
 				+ "else 0 " + crLf
 				+ "end as Correspondence_CorrespondenceTypeId");
 
-			
-			queries[2].AddJoin("((StickerRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ") " + crLf
-				+ " OR " + "(InvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
-				+ " OR " + "(CopyOfInvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
-				+ " OR " + "(StatementRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
-				+ " OR " + "(DetailsUpdateRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ")) ");
+			queries[2].AddJoin("(DetailsUpdateRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ") ");
 
-			
-			//Adding to Get CorrespondenceId
 
-			queries[2].AddJoin("(case when (StickerRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ") " + crLf
-				+ "then " + Convert.ToInt32(correspondenceType.stickerRequired).ToString() + crLf
-				+ "when (InvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
-				+ "then " + Convert.ToInt32(correspondenceType.invoice).ToString()  + crLf
-				+ "when (CopyOfInvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
-				+ "then " + Convert.ToInt32(correspondenceType.copyOfInvoice).ToString()  + crLf
-				+ "when (StatementRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
-				+ "then " + Convert.ToInt32(correspondenceType.statement).ToString()  + crLf
-				+ "when (DetailsUpdateRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ") " + crLf
-				+ "then " + Convert.ToInt32(correspondenceType.detailsUpdate).ToString()  + crLf
+			queries[2].AddJoin("(case when (DetailsUpdateRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ") " + crLf
+				+ "then " + Convert.ToInt32(correspondenceType.detailsUpdate).ToString() + crLf
 				+ "else 0 " + crLf
 				+ "end > 0)");
+
+			//queries[0].SelectColumns.Add("case when StickerRequired = 1" + crLf
+			//	+ "then " + Convert.ToInt32(correspondenceMedium.mail).ToString() + crLf
+			//	+ "when InvoiceRequired = 1 OR StatementRequired = 1 OR DetailsUpdateRequired = 1 OR CopyOfInvoiceRequired = 1 " + crLf
+			//	+ "then tblPerson.PreferredContactMethod" + crLf
+			//	+ "else 0 " + crLf
+			//	+ "end as CorrespondenceMedium");
+
+			//queries[0].SelectColumns.Add("case when (StickerRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
+			//	+ "then " + Convert.ToInt32(correspondenceType.stickerRequired).ToString() + crLf
+			//	+ "when (InvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
+			//	+ "then " + Convert.ToInt32(correspondenceType.invoice).ToString()  + crLf
+			//	+ "when (CopyOfInvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
+			//	+ "then " + Convert.ToInt32(correspondenceType.copyOfInvoice).ToString()  + crLf
+			//	+ "when (StatementRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
+			//	+ "then " + Convert.ToInt32(correspondenceType.statement).ToString()  + crLf
+			//	+ "when (DetailsUpdateRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ") " + crLf
+			//	+ "then " + Convert.ToInt32(correspondenceType.detailsUpdate).ToString()  + crLf
+			//	+ "else 0 " + crLf
+			//	+ "end as Correspondence_CorrespondenceTypeId");
+
+
+			//queries[2].AddJoin("((StickerRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ") " + crLf
+			//	+ " OR " + "(InvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
+			//	+ " OR " + "(CopyOfInvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
+			//	+ " OR " + "(StatementRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
+			//	+ " OR " + "(DetailsUpdateRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ")) ");
+
+
+			//Adding to Get CorrespondenceId
+
+			//queries[2].AddJoin("(case when (StickerRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ") " + crLf
+			//	+ "then " + Convert.ToInt32(correspondenceType.stickerRequired).ToString() + crLf
+			//	+ "when (InvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
+			//	+ "then " + Convert.ToInt32(correspondenceType.invoice).ToString()  + crLf
+			//	+ "when (CopyOfInvoiceRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
+			//	+ "then " + Convert.ToInt32(correspondenceType.copyOfInvoice).ToString()  + crLf
+			//	+ "when (StatementRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.billingContact).ToString() + ") " + crLf
+			//	+ "then " + Convert.ToInt32(correspondenceType.statement).ToString()  + crLf
+			//	+ "when (DetailsUpdateRequired = 1 and PersonPremiseRoleType = " + Convert.ToInt32(personPremiseRoleType.detailsManager).ToString() + ") " + crLf
+			//	+ "then " + Convert.ToInt32(correspondenceType.detailsUpdate).ToString()  + crLf
+			//	+ "else 0 " + crLf
+			//	+ "end > 0)");
 
 
 			queries[2].Joins.Add("tblPersonPremiseRole.Archive = 0");
@@ -1184,7 +1202,6 @@ namespace Keyholders
 
 		#endregion
 
-
 		# region My_ Values PersonPremiseRole
 
 		/// <summary>
@@ -1208,12 +1225,9 @@ namespace Keyholders
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "PersonPremiseRoleType"));
 		}
 
-		/// <summary>
-		/// Person Premise Role Type Name, from the enumeration
-		/// <see cref="clsKeyBase.personPremiseRoleTypeName">personPremiseRoleTypeName</see>
-		/// </summary>
+		/// <summary>PersonPremiseRoleTypeName</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns>Name of Type of Person Premise Role for this Row</returns>
+		/// <returns>PersonPremiseRoleTypeName</returns>
 		public string my_PersonPremiseRoleTypeName(int rowNum)
 		{
 			return personPremiseRoleTypeName(my_PersonPremiseRoleType(rowNum));

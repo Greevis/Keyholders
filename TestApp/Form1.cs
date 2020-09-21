@@ -664,7 +664,7 @@ namespace TestApp
             this.txtServer.Name = "txtServer";
             this.txtServer.Size = new System.Drawing.Size(128, 20);
             this.txtServer.TabIndex = 158;
-            this.txtServer.Text = "Dev1";
+            this.txtServer.Text = "Dev64";
             // 
             // button46
             // 
@@ -998,13 +998,6 @@ namespace TestApp
 
         public int thisDbType = (int)Resources.clsRecordHandler.databaseType.mySql;
 
-
-
-  //      public string KateConnection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
-		//public const string Dev1Connection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
-		//public string thisConnectionAndLogFileName = "KDLConnect.txt";
-		//public string thisFileFolder = @"c:\";
-		//public string thisConnection = Dev1Connection;
 
 
 		private void button1_Click(object sender, System.EventArgs e)
@@ -1544,7 +1537,12 @@ namespace TestApp
 			thisImportData.Connect((int) thisImportData.DatabaseType_MySql(), 
 				thisConnection);
 
-			thisImportData.DoCorrespondence(thisDate);
+            int SeedInvoiceNumber = 1;
+            string LogFolder = @"W:\logs\";
+            string fileToExportTo = @"export.csv";
+
+
+            thisImportData.DoCorrespondence(thisDate, SeedInvoiceNumber, LogFolder, fileToExportTo);
 			
 
 			MessageBox.Show("Done!");
@@ -1733,6 +1731,7 @@ namespace TestApp
 		{
 			KateConnection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=" + txtServer.Text +";port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
 			thisConnection = KateConnection;
+            MessageBox.Show("Connection Updated");
 		}
 
 		private void button48_Click(object sender, System.EventArgs e)
@@ -1922,7 +1921,12 @@ namespace TestApp
 			thisOrder.Connect((int) thisOrder.DatabaseType_MySql(), 
 				thisConnection);
 
-			thisOrder.SubmitAllUnsubmittedOrders(DateTime.Now.ToString());
+            int SeedInvoiceNumber = 1;
+            string LogFolder = @"W:\logs\";
+            string fileToExportTo = @"export.csv";
+
+
+            thisOrder.SubmitAllUnsubmittedOrders(DateTime.Now.ToString(), SeedInvoiceNumber, LogFolder, fileToExportTo);
 
 		
 		}

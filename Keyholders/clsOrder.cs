@@ -1,33 +1,32 @@
+using Resources;
 using System;
 using System.Runtime.InteropServices;
 using System.Data;
-using Resources;
 using System.Data.Odbc;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
+using System.Collections.Generic;
+using System.IO;
 using System.Collections;
 
 namespace Keyholders
 {
-	/// <summary>
-	/// clsOrder deals with everything to do with data about Orders.
-	/// </summary>
-
+	/// <summary>clsOrder deals with everything to do with data about Orders</summary>
 	[GuidAttribute("46A8389B-A0B3-4d0e-8DEC-BCB2E157478B")]
 	public class clsOrder : clsKeyBase
 	{
-		# region Initialisation
-		/// <summary>
-		/// Constructor for clsOrder
-		/// </summary>
+		#region Initialisation
+
+		#region Constructors
+
+		/// <summary>Constructor for clsOrder</summary>
 		public clsOrder() : base("Order")
 		{
 		}
 
-		/// <summary>
-		/// Constructor for clsOrder; Allows Calling of 'Connect' Function to be skipped
-		/// </summary>
-		/// <param name="typeOfDb">Type of Database, form the enumeration
-		/// <see cref="clsRecordHandler.databaseType">databaseType</see>
-		/// </param>
+		/// <summary>Constructor for clsOrder; Allows Calling of 'Connect' Function to be skipped</summary>
+		/// <param name="typeOfDb">Type of Database, form the enumeration <see cref="clsRecordHandler.databaseType">databaseType</see></param>
 		/// <param name="odbcConnection">Open Database Connection</param>
 		public clsOrder(clsRecordHandler.databaseType typeOfDb, 
 			OdbcConnection odbcConnection) : base("Order")
@@ -35,100 +34,51 @@ namespace Keyholders
 			Connect(typeOfDb, odbcConnection);
 		}
 
-		/// <summary>
-		/// Part of the Query that Pertains to Customer Information
-		/// </summary>
-		public clsQueryPart CustomerQ = new clsQueryPart();
+		#endregion
 
-		/// <summary>
-		/// Part of the Query that Pertains to Person Information
-		/// </summary>
+		#region ConnectToForeignClasses
+
+		/// <summary>Connect to Foreign Key classes within this class</summary>
+		/// <param name="typeOfDb">Type of Database, form the enumeration <see cref="clsRecordHandler.databaseType">databaseType</see></param>
+		/// <param name="odbcConnection">An already open ODBC database connection</param>
+		public override void ConnectToForeignClasses(
+			clsRecordHandler.databaseType typeOfDb,
+			OdbcConnection odbcConnection)
+		{
+			GetGeneralSettings();
+		}
+
+        #endregion
+
+        #region LoadMainQuery
+
+        #region QueryParts
+
+        /// <summary>CustomerQ</summary>
+        public clsQueryPart CustomerQ = new clsQueryPart();
+
+		/// <summary>PersonQ</summary>
 		public clsQueryPart PersonQ = new clsQueryPart();
 
-		/// <summary>
-		/// Part of the Query that Pertains to Country Information
-		/// </summary>
+		/// <summary>CountryQ</summary>
 		public clsQueryPart CountryQ = new clsQueryPart();
-	
-		/// <summary>
-		/// Part of the Query that Pertains to OrderStatus Information
-		/// </summary>
+
+		/// <summary>OrderStatusQ</summary>
 		public clsQueryPart OrderStatusQ = new clsQueryPart();
-		
-		/// <summary>
-		/// Part of the Query that Pertains to ItemSummary Information
-		/// </summary>
+
+		/// <summary>ItemSummaryQ</summary>
 		public clsQueryPart ItemSummaryQ = new clsQueryPart();
-		
-		/// <summary>
-		/// Loads the SQL for the 'main' query for the Get Functions
-		/// </summary>
+
+		#endregion
+
+		#region LoadMainQuery
+
+		/// <summary>Loads the SQL for query types for the GetBys</summary>
 		public override void LoadMainQuery()
 		{
 			MainQ = OrderQueryPart();
 			MainQ.FromTables.Clear();
 			MainQ.AddFromTable(thisTable + " left outer join tblPerson on tblOrder.PersonId = tblPerson.PersonId");
-
-			#region Old
-//
-//			MainQ.AddSelectColumn("tblOrder.OrderId");
-//			MainQ.AddSelectColumn("tblOrder.CustomerId");
-//			MainQ.AddSelectColumn("tblOrder.PersonId");
-//			MainQ.AddSelectColumn("tblOrder.CustomerGroupId");
-//			MainQ.AddSelectColumn("tblOrder.PaymentMethodTypeId");
-//			MainQ.AddSelectColumn("tblOrder.OrderNum");
-//			MainQ.AddSelectColumn("tblOrder.CustomerType");
-//			MainQ.AddSelectColumn("tblOrder.FullName");
-//			MainQ.AddSelectColumn("tblOrder.Title");
-//			MainQ.AddSelectColumn("tblOrder.FirstName");
-//			MainQ.AddSelectColumn("tblOrder.LastName");
-//			MainQ.AddSelectColumn("tblOrder.QuickPostalAddress");
-//			MainQ.AddSelectColumn("tblOrder.QuickDaytimePhone");
-//			MainQ.AddSelectColumn("tblOrder.QuickDaytimeFax");
-//			MainQ.AddSelectColumn("tblOrder.QuickAfterHoursPhone");
-//			MainQ.AddSelectColumn("tblOrder.QuickAfterHoursFax");
-//			MainQ.AddSelectColumn("tblOrder.QuickMobilePhone");
-//			MainQ.AddSelectColumn("tblOrder.CountryId");
-//			MainQ.AddSelectColumn("tblOrder.Email");
-//			MainQ.AddSelectColumn("tblOrder.OrderSubmitted");
-//			MainQ.AddSelectColumn("tblOrder.OrderPaid");
-//			MainQ.AddSelectColumn("tblOrder.OrderCreatedMechanism");
-//			MainQ.AddSelectColumn("tblOrder.OrderStatusId");
-//			MainQ.AddSelectColumn("tblOrder.SupplierComment");
-//			MainQ.AddSelectColumn("tblOrder.DateCreated");
-//			MainQ.AddSelectColumn("tblOrder.DateCreatedUtc");
-//			MainQ.AddSelectColumn("tblOrder.DateSubmitted");
-//			MainQ.AddSelectColumn("tblOrder.DateSubmittedUtc");
-//			MainQ.AddSelectColumn("tblOrder.DateProcessed");
-//			MainQ.AddSelectColumn("tblOrder.DateProcessedUtc");
-//			MainQ.AddSelectColumn("tblOrder.DateShipped");
-//			MainQ.AddSelectColumn("tblOrder.DateShippedUtc");
-//			MainQ.AddSelectColumn("tblOrder.TaxAppliedToOrder");
-//			MainQ.AddSelectColumn("tblOrder.TaxRateAtTimeOfOrder");
-//			MainQ.AddSelectColumn("tblOrder.TaxCost");
-//			MainQ.AddSelectColumn("tblOrder.FreightCost");
-//			MainQ.AddSelectColumn("tblOrder.Total");
-//
-//			MainQ.AddFromTable(thisTable + " left outer join tblPerson on tblOrder.PersonId = tblPerson.PersonId");
-
-			//			ItemSummaryQ.AddSelectColumn("tblItem.TotalItemWeight");
-			//			ItemSummaryQ.AddSelectColumn("tblItem.TotalItemCost");
-			//			ItemSummaryQ.AddSelectColumn("tblItem.TotalItemFreightCost");
-			//			ItemSummaryQ.AddSelectColumn("case tblItem.IsInvoiceOrder when 0 then 0 else 1 end as IsInvoiceOrder");
-			//
-			//			ItemSummaryQ.AddFromTable("(Select tblOrder.OrderId, " + crLf
-			//				+ "Count(ItemId) as NumItems, " + crLf
-			//				+ "sum(Weight * Quantity) as TotalItemWeight, " + crLf
-			//				+ "Round(sum(tblItem.Cost * Quantity),2) as TotalItemCost, " + crLf
-			//				+ "Round(sum(tblItem.FreightCost * Quantity),2) as TotalItemFreightCost, " + crLf
-			//				+ "sum(case when ProductId is NULL then 1 else 0 end) as IsInvoiceOrder " + crLf
-			//				+ "from tblOrder left outer join tblItem " + crLf
-			//				+ "on tblOrder.OrderId = tblItem.OrderId " + crLf
-			//				+ "Group by tblOrder.OrderId) tblItem");
-			//
-			//			ItemSummaryQ.AddJoin("tblOrder.OrderId = tblItem.OrderId");
-
-			#endregion
 
 			PersonQ = PersonQueryPart();
 			PersonQ.Joins.Clear();
@@ -139,50 +89,79 @@ namespace Keyholders
 			OrderStatusQ = OrderStatusQueryPart();
 
 			clsQueryBuilder QB = new clsQueryBuilder();
-			baseQueries = new clsQueryPart[5];
+
+			baseQueries = new clsQueryPart[]
+			{
+				MainQ,
+				CustomerQ,
+				PersonQ,
+				CountryQ,
+				OrderStatusQ
+			};
+
+			//baseQueries = new clsQueryPart[5];
 			
-			baseQueries[0] = MainQ;
-			baseQueries[1] = CustomerQ;
-			baseQueries[2] = PersonQ;
-			baseQueries[3] = CountryQ;
-			baseQueries[4] = OrderStatusQ;
+			//baseQueries[0] = MainQ;
+			//baseQueries[1] = CustomerQ;
+			//baseQueries[2] = PersonQ;
+			//baseQueries[3] = CountryQ;
+			//baseQueries[4] = OrderStatusQ;
 //			queries[5] = ItemSummaryQ;
 
 			mainSqlQuery = QB.BuildSqlStatement(baseQueries);
 			orderBySqlQuery = "Order By tblOrder.OrderId" + crLf;
 		}
 
-		/// <summary>
-		/// Initialise (or reinitialise) everything for clsOrder
-		/// </summary>
+		#endregion
+
+		#endregion
+
+		#region Initialise
+
+		/// <summary>Initialise (or reinitialise) everything for this class</summary>
 		public override void Initialise()
 		{
+
 			//Initialise the data tables with Column Names
 
 			newDataToAdd = new DataTable(thisTable);
+
 			newDataToAdd.Columns.Add("CustomerId", System.Type.GetType("System.Int32"));
 			newDataToAdd.Columns.Add("PersonId", System.Type.GetType("System.Int32"));
 			newDataToAdd.Columns.Add("PaymentMethodTypeId", System.Type.GetType("System.Int32"));
 			newDataToAdd.Columns.Add("CustomerGroupId", System.Type.GetType("System.Int32"));
+
 			newDataToAdd.Columns.Add("OrderNum", System.Type.GetType("System.String"));
+
 			newDataToAdd.Columns.Add("CustomerType", System.Type.GetType("System.Int32"));
+
 			newDataToAdd.Columns.Add("FullName", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("Title", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("FirstName", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("LastName", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("QuickPostalAddress", System.Type.GetType("System.String"));
+
 			newDataToAdd.Columns.Add("QuickDaytimePhone", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("QuickDaytimeFax", System.Type.GetType("System.String"));
+
 			newDataToAdd.Columns.Add("QuickAfterHoursPhone", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("QuickAfterHoursFax", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("QuickMobilePhone", System.Type.GetType("System.String"));
+
 			newDataToAdd.Columns.Add("CountryId", System.Type.GetType("System.Int32"));
+
 			newDataToAdd.Columns.Add("Email", System.Type.GetType("System.String"));
+
 			newDataToAdd.Columns.Add("OrderSubmitted", System.Type.GetType("System.Int32"));
+
 			newDataToAdd.Columns.Add("OrderPaid", System.Type.GetType("System.Int32"));
+
 			newDataToAdd.Columns.Add("OrderCreatedMechanism", System.Type.GetType("System.Int32"));
+
 			newDataToAdd.Columns.Add("OrderStatusId", System.Type.GetType("System.Int32"));
+
 			newDataToAdd.Columns.Add("SupplierComment", System.Type.GetType("System.String"));
+
 			newDataToAdd.Columns.Add("DateCreated", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("DateCreatedUtc", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("DateSubmitted", System.Type.GetType("System.String"));
@@ -192,9 +171,12 @@ namespace Keyholders
 			newDataToAdd.Columns.Add("DateShipped", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("DateShippedUtc", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("DateDue", System.Type.GetType("System.String"));
+
 			newDataToAdd.Columns.Add("InvoiceRequested", System.Type.GetType("System.Int32"));
+
 			newDataToAdd.Columns.Add("DateInvoiceLastPrinted", System.Type.GetType("System.String"));
-			newDataToAdd.Columns.Add("TaxAppliedToOrder", System.Type.GetType("System.Int32"));
+
+			newDataToAdd.Columns.Add("TaxAppliedToOrder", System.Type.GetType("System.Decimal"));
 			newDataToAdd.Columns.Add("TaxRateAtTimeOfOrder", System.Type.GetType("System.Decimal"));
 			newDataToAdd.Columns.Add("TaxCost", System.Type.GetType("System.Decimal"));
 			newDataToAdd.Columns.Add("FreightCost", System.Type.GetType("System.Decimal"));
@@ -202,53 +184,42 @@ namespace Keyholders
 			newDataToAdd.Columns.Add("TotalItemWeight", System.Type.GetType("System.Decimal"));
 			newDataToAdd.Columns.Add("TotalItemCost", System.Type.GetType("System.Decimal"));
 			newDataToAdd.Columns.Add("TotalItemFreightCost", System.Type.GetType("System.Decimal"));
+
 			newDataToAdd.Columns.Add("IsInvoiceOrder", System.Type.GetType("System.Int32"));
 			newDataToAdd.Columns.Add("NumItems", System.Type.GetType("System.Int32"));
-			
-			dataToBeModified = new DataTable(thisTable);
-			dataToBeModified.Columns.Add(thisPk, System.Type.GetType("System.Int32"));
 
-			dataToBeModified.PrimaryKey = new System.Data.DataColumn[] 
+
+			dataToBeModified = new DataTable(thisTable);
+			dataToBeModified.Columns.Add(thisPk, System.Type.GetType("System.Int64"));
+
+			dataToBeModified.PrimaryKey = new System.Data.DataColumn[]
 				{dataToBeModified.Columns[thisPk]};
 
 			for (int colCounter = 0; colCounter < newDataToAdd.Columns.Count; colCounter++)
 				dataToBeModified.Columns.Add(newDataToAdd.Columns[colCounter].ColumnName, newDataToAdd.Columns[colCounter].DataType);
 
-
 			InitialiseWarningAndErrorTables();
 			InitialiseAttributeChangeDataTable();
-		}
-	
-		/// <summary>
-		/// Connect to Foreign Key classes within this class
-		/// </summary>
-		/// <param name="typeOfDb">Type of Database, form the enumeration
-		/// <see cref="clsRecordHandler.databaseType">databaseType</see>
-		/// </param>
-		/// <param name="odbcConnection">An already open ODBC database connection</param>
-		public override void ConnectToForeignClasses(
-			clsRecordHandler.databaseType typeOfDb, 
-			OdbcConnection odbcConnection)
-		{
-
-			GetGeneralSettings();
 		}
 
 		#endregion
 
-		# region Get Methods
+		#endregion
 
-		/// <summary>
-		/// Initialises an internal list of all Orders
-		/// </summary>
+		#region All GetBy Methods
+
+		#region General GetBy Methods
+
+		#region GetAll
+
+		/// <summary>GetAll for this class</summary>
 		/// <returns>Number of resulting records</returns>
 		public int GetAll()
 		{
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 
-			thisSqlQuery = QB.BuildSqlStatement(
-				queries, OrderByColumns);
+			thisSqlQuery = QB.BuildSqlStatement(queries, OrderByColumns);
 
 			//Ordering
 			if (OrderByColumns.Count == 0)
@@ -257,25 +228,27 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
-		/// <summary>
-		/// Gets an Order by OrderId
-		/// </summary>
-		/// <param name="OrderId">Id of Order to retrieve</param>
+
+		#endregion
+
+		#region GetByOrderId
+
+		/// <summary>Get a Order by OrderId</summary>
+		/// <param name="OrderId">OrderId</param>
 		/// <returns>Number of resulting records</returns>
 		public int GetByOrderId(int OrderId)
 		{
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 
-			string condition = "(Select * from " + thisTable 
-				+ " Where " + thisTable + "." + thisPk + " = "
-				+ OrderId.ToString() 
-				+ ") " + thisTable;
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable + crLf
+				+ " Where " + thisTable + ".OrderId = " + OrderId.ToString() + crLf
+				+ ") " + thisTable
+				);
 
-			thisSqlQuery = QB.BuildSqlStatement(
-				queries, 
-				OrderByColumns, 
-				condition,
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
 				thisTable
 				);
 
@@ -287,31 +260,30 @@ namespace Keyholders
 		}
 
 
-		/// <summary>
-		/// Gets Orders by CustomerId
-		/// </summary>
-		/// <param name="CustomerId">Id of Customer to retrieve Orders for</param>
+		#endregion
+
+		#endregion
+
+		#region GetBy SingleId and Type Methods
+
+		#region GetByCustomerId
+
+		/// <summary>Gets Orders by CustomerId</summary>
+		/// <param name="CustomerId">CustomerId</param>
 		/// <returns>Number of resulting records</returns>
 		public int GetByCustomerId(int CustomerId)
 		{
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 
-			string condition = "(Select * from " + thisTable + crLf;	
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".CustomerId = " + CustomerId.ToString() + crLf
+				+ ") " + thisTable
+				);
 
-			//Additional Condition
-			if (CustomerId == 0)
-				condition += "Where tblOrder.CustomerId is NULL " + crLf;
-			else
-				condition += "Where tblOrder.CustomerId = " 
-					+ CustomerId.ToString() + crLf;
-
-			condition += ") " + thisTable;
-
-			thisSqlQuery = QB.BuildSqlStatement(
-				queries, 
+			thisSqlQuery = QB.BuildSqlStatement(queries,
 				OrderByColumns,
-				condition,
+				condition.ToString(),
 				thisTable
 				);
 
@@ -322,33 +294,92 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
-		/// <summary>
-		/// Gets Orders by CustomerGroupId
-		/// </summary>
-		/// <param name="CustomerGroupId">Id of CustomerGroup to retrieve Orders for</param>
+
+		#endregion
+
+		#region GetByPersonId
+
+		/// <summary>Gets Orders by PersonId</summary>
+		/// <param name="PersonId">PersonId</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByPersonId(int PersonId)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".PersonId = " + PersonId.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByPaymentMethodTypeId
+
+		/// <summary>Gets Orders by PaymentMethodTypeId</summary>
+		/// <param name="PaymentMethodTypeId">PaymentMethodTypeId</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByPaymentMethodTypeId(int PaymentMethodTypeId)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".PaymentMethodTypeId = " + PaymentMethodTypeId.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByCustomerGroupId
+
+		/// <summary>Gets Orders by CustomerGroupId</summary>
+		/// <param name="CustomerGroupId">CustomerGroupId</param>
 		/// <returns>Number of resulting records</returns>
 		public int GetByCustomerGroupId(int CustomerGroupId)
 		{
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 
-			string condition = "(Select * from " + thisTable + crLf;	
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".CustomerGroupId = " + CustomerGroupId.ToString() + crLf
+				+ ") " + thisTable
+				);
 
-			//Additional Condition
-			if (CustomerGroupId == 0)
-				condition += "Where tblOrder.CustomerGroupId is NULL " + crLf;
-			else
-				condition += "Where tblOrder.CustomerGroupId = " 
-					+ CustomerGroupId.ToString() + crLf;
-
-			condition += ") " + thisTable;
-
-			thisSqlQuery = QB.BuildSqlStatement(
-				queries, 
+			thisSqlQuery = QB.BuildSqlStatement(queries,
 				OrderByColumns,
-				condition,
+				condition.ToString(),
 				thisTable
 				);
+
 			//Ordering
 			if (OrderByColumns.Count == 0)
 				thisSqlQuery += orderBySqlQuery;
@@ -356,9 +387,295 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
-		/// <summary>
-		/// Gets Orders by any kind of name or Order Number
-		/// </summary>
+
+		#endregion
+
+		#region GetByCustomerType
+
+		/// <summary>Gets Orders by CustomerType</summary>
+		/// <param name="CustomerType">CustomerType</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByCustomerType(int CustomerType)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".CustomerType = " + CustomerType.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByCountryId
+
+		/// <summary>Gets Orders by CountryId</summary>
+		/// <param name="CountryId">CountryId</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByCountryId(int CountryId)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".CountryId = " + CountryId.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByOrderSubmitted
+
+		/// <summary>Gets Orders by OrderSubmitted</summary>
+		/// <param name="OrderSubmitted">OrderSubmitted</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByOrderSubmitted(int OrderSubmitted)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".OrderSubmitted = " + OrderSubmitted.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByOrderPaid
+
+		/// <summary>Gets Orders by OrderPaid</summary>
+		/// <param name="OrderPaid">OrderPaid</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByOrderPaid(int OrderPaid)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".OrderPaid = " + OrderPaid.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByOrderCreatedMechanism
+
+		/// <summary>Gets Orders by OrderCreatedMechanism</summary>
+		/// <param name="OrderCreatedMechanism">OrderCreatedMechanism</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByOrderCreatedMechanism(int OrderCreatedMechanism)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".OrderCreatedMechanism = " + OrderCreatedMechanism.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByOrderStatusId
+
+		/// <summary>Gets Orders by OrderStatusId</summary>
+		/// <param name="OrderStatusId">OrderStatusId</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByOrderStatusId(int OrderStatusId)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".OrderStatusId = " + OrderStatusId.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByInvoiceRequested
+
+		/// <summary>Gets Orders by InvoiceRequested</summary>
+		/// <param name="InvoiceRequested">InvoiceRequested</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByInvoiceRequested(int InvoiceRequested)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".InvoiceRequested = " + InvoiceRequested.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByIsInvoiceOrder
+
+		/// <summary>Gets Orders by IsInvoiceOrder</summary>
+		/// <param name="IsInvoiceOrder">IsInvoiceOrder</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByIsInvoiceOrder(int IsInvoiceOrder)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".IsInvoiceOrder = " + IsInvoiceOrder.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByNumItems
+
+		/// <summary>Gets Orders by NumItems</summary>
+		/// <param name="NumItems">NumItems</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByNumItems(int NumItems)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".NumItems = " + NumItems.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#endregion
+
+		#region Other GetBy Methods
+
+		#region GetByNameOrNumber
+
+		/// <summary>GetByNameOrNumber</summary>
 		/// <param name="NameOrOrderNum">Filter for Name or Part of Name of Customer or Order Number or Part of Order Number</param>
 		/// <returns>Number of resulting records</returns>
 		public int GetByNameOrNumber(string NameOrOrderNum)
@@ -375,20 +692,6 @@ namespace Keyholders
 				+ "and concat_ws(' ',FirstName,LastName,FullName,QuickPostalAddress,OrderNum, PremiseNumber) " + MatchCondition(NameOrOrderNum, matchCriteria.contains) + crLf
 				;
 			
-//			//Condition
-//			string condition = "(Select * from " + thisTable + crLf
-//				+ "	Where concat_ws(' ',FirstName,LastName,FullName,QuickPostalAddress,OrderNum)  " 
-//				+ MatchCondition(NameOrOrderNum, matchCriteria.contains) + crLf
-//				;
-//
-//			condition += ") " + thisTable;
-//
-//			thisSqlQuery = QB.BuildSqlStatement(
-//				queries, 
-//				OrderByColumns,
-//				condition,
-//				thisTable
-//				);
 
 			//Ordering
 			if (OrderByColumns.Count == 0)
@@ -396,10 +699,12 @@ namespace Keyholders
 
 			return localRecords.GetRecords(thisSqlQuery);
 		}
-		
-		/// <summary>
-		/// Gets Orders by whether they have been paid for or not, any kind of name or Order Number, and the Supplier Status
-		/// </summary>
+
+		#endregion
+
+		#region GetByOrderPaidNameOrOrderNumOrderStatus
+
+		/// <summary>GetByOrderPaidNameOrOrderNumOrderStatus</summary>
 		/// <param name="OrderPaid">Filter for orders that have been paid for or not</param>
 		/// <param name="NameOrOrderNum">Filter for Name or Part of Name of Customer or Order Number or Part of Order Number</param>
 		/// <param name="OrderStatus">Filter for Supplier Status of the order</param>
@@ -433,10 +738,12 @@ namespace Keyholders
 
 			return localRecords.GetRecords(thisSqlQuery);
 		}
-		
-		/// <summary>
-		/// Gets Orders by whether they have been paid for or not by Customer
-		/// </summary>
+
+		#endregion
+
+		#region GetByOrderPaidCustomerId
+
+		/// <summary>GetByOrderPaidCustomerId</summary>
 		/// <param name="OrderPaid">Filter for orders that have been paid for or not</param>
 		/// <param name="CustomerId">Id of Customer</param>
 		/// <returns>Number of resulting records</returns>
@@ -445,19 +752,16 @@ namespace Keyholders
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 			
-			//Condition
-			string condition = "(Select * from " + thisTable + crLf
-				+ "	Where OrderPaid = " + OrderPaid.ToString() + crLf;
-
-			if (CustomerId != 0)
-				condition += "	And CustomerId = " + CustomerId.ToString() + crLf;
-
-			condition += ") " + thisTable;
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".OrderPaid = " + OrderPaid.ToString() + crLf
+				+ "		And " + thisTable + ".CustomerId = " + CustomerId.ToString() + crLf
+				+ ") " + thisTable
+				);
 
 			thisSqlQuery = QB.BuildSqlStatement(
 				queries, 
 				OrderByColumns,
-				condition,
+				condition.ToString(),
 				thisTable
 				);
 
@@ -467,11 +771,45 @@ namespace Keyholders
 
 			return localRecords.GetRecords(thisSqlQuery);
 		}
-		
 
-		/// <summary>
-		/// Gets Orders by whether they have been Submitted for or not, any kind of name or Order Number, and the Supplier Status
-		/// </summary>
+		#endregion
+
+		#region GetByOrderSubmittedOrderCreatedMechanism
+
+		/// <summary>GetByOrderSubmittedOrderCreatedMechanism</summary>
+		/// <param name="OrderSubmitted">Filter for orders that have been paid for or not</param>
+		/// <param name="OrderCreatedMechanism">Id of Customer</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByOrderSubmittedOrderCreatedMechanism(int OrderSubmitted, int OrderCreatedMechanism)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".OrderSubmitted = " + OrderSubmitted.ToString() + crLf
+				+ "		And " + thisTable + ".OrderCreatedMechanism = " + OrderCreatedMechanism.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(
+				queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+		#endregion
+
+		#region GetByOrderSubmittedNameOrOrderNumOrderStatus
+
+		/// <summary>GetByOrderSubmittedNameOrOrderNumOrderStatus</summary>
 		/// <param name="OrderSubmitted">Filter for orders that have been Submitted for or not</param>
 		/// <param name="NameOrOrderNum">Filter for Name or Part of Name of Customer or Order Number or Part of Order Number</param>
 		/// <param name="OrderStatus">Filter for Supplier Status of the order</param>
@@ -521,10 +859,12 @@ namespace Keyholders
 
 			return localRecords.GetRecords(thisSqlQuery);
 		}
-		
-		/// <summary>
-		/// Gets Orders by whether they have been Submitted for or not for a Customer
-		/// </summary>
+
+		#endregion
+
+		#region GetByOrderSubmittedCustomerId
+
+		/// <summary>GetByOrderSubmittedCustomerId</summary>
 		/// <param name="OrderSubmitted">Filter for orders that have been Submitted for or not</param>
 		/// <param name="CustomerId">Id of Customer</param>
 		/// <param name="IsInvoiceOrder">Whether to return orders that are invoices only or those which are not.</param>
@@ -572,10 +912,11 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
+		#endregion
 
-		/// <summary>
-		/// Gets all Unsubmitted Orders
-		/// </summary>
+		#region GetUnsubmittedOrders
+
+		/// <summary>GetUnsubmittedOrders</summary>
 		/// <returns>Number of resulting records</returns>
 		public int GetUnsubmittedOrders()
 		{
@@ -603,10 +944,11 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
+		#endregion
 
-		/// <summary>
-		/// Gets all Unsubmitted Orders with No Items
-		/// </summary>
+		#region GetUnsubmittedOrdersWithNoItems
+
+		/// <summary>GetUnsubmittedOrdersWithNoItems</summary>
 		/// <returns>Number of resulting records</returns>
 		public int GetUnsubmittedOrdersWithNoItems()
 		{
@@ -636,10 +978,9 @@ namespace Keyholders
 
 		#endregion
 
-		#region Get By Date Created
-		/// <summary>
-		/// Gets Orders by any kind of name or Order Number
-		/// </summary>
+		#region GetByDateCreated
+
+		/// <summary>GetByDateCreated</summary>
 		/// <param name="DateCreated">Filter for Name or Part of Name of Customer or Order Number or Part of Order Number</param>
 		/// <returns>Number of resulting records</returns>
 		public int GetByDateCreated(string DateCreated)
@@ -662,11 +1003,9 @@ namespace Keyholders
 
 		#endregion
 
-		#region Get Duplicates on DateCreated
+		#region GetDuplicatesForCustomerOnDateCreated
 
-		/// <summary>
-		/// GetDuplicatesForCustomerOnDateCreated
-		/// </summary>
+		/// <summary>GetDuplicatesForCustomerOnDateCreated</summary>
 		/// <param name="Day">Day</param>
 		/// <param name="Month">Month</param>
 		/// <param name="Year">Year</param>
@@ -691,9 +1030,7 @@ namespace Keyholders
 
 		#region GetByCustomerIdOrderDateCreated
 
-		/// <summary>
-		/// Gets Items by CustomerId and Date Created
-		/// </summary>
+		/// <summary>GetByCustomerIdOrderDateCreated</summary>
 		/// <param name="CustomerId">Id of Customer to retrieve Items for</param>
 		/// <param name="Day">OrderDateCreated Day</param>
 		/// <param name="Month">OrderDateCreated Month</param>
@@ -738,8 +1075,11 @@ namespace Keyholders
 
 		#endregion
 
-		#region Delete methods
+		#endregion
+		
+		#endregion
 
+		#region Delete methods
 
 		/// <summary>
 		/// Deletes Unsubmitted Orders With No Items
@@ -1221,11 +1561,12 @@ namespace Keyholders
 
 		#region SubmitAllUnsubmittedOrders
 
-		/// <summary>
-		/// Function that allows submission of all unsubmitted orders
-		/// </summary>
+		/// <summary>SubmitAllUnsubmittedOrders</summary>
 		/// <param name="DateSubmitted">Submittion Date</param>
-		public void SubmitAllUnsubmittedOrders(string DateSubmitted)
+		/// <param name="SeedInvoiceNumber">SeedInvoiceNumber</param>
+		/// <param name="LogFolder">LogFolder</param>
+		/// <param name="fileToExportTo">fileToExportTo</param>
+		public int SubmitAllUnsubmittedOrders(string DateSubmitted, int SeedInvoiceNumber, string LogFolder, string fileToExportTo)
 		{
 			DateTime thisDateTime = Convert.ToDateTime(DateSubmitted);
 			DateTime thisUtcDateTime = thisDateTime.ToUniversalTime();
@@ -1274,6 +1615,13 @@ namespace Keyholders
 
 			#endregion
 
+
+			#region Export the Orders to be submitted
+
+			int numOrders = ExportToCsvForMonth(SeedInvoiceNumber, LogFolder, fileToExportTo);
+
+			#endregion
+
 			#region Submit the orders
 
 			string update = "Update tblOrder set OrderSubmitted = 1, InvoiceRequested = 1," + crLf
@@ -1310,18 +1658,354 @@ namespace Keyholders
 
 			#endregion
 
+			return numOrders;
 		}
 
-		#endregion 
+        #endregion
 
-		#region ProcessOrder
+        #region ExportToCsvForMonth
 
-		/// <summary>
-		/// Function that allows processing of an order
-		/// </summary>
-		/// <param name="OrderId">Id of Order</param>
-		/// <param name="DateProcessed">Date Processed</param>
-		public void ProcessOrder(int OrderId, string DateProcessed)
+        /// <summary>ExportToCsvForMonth</summary>
+        /// <param name="SeedInvoiceNumber">SeedInvoiceNumber</param>
+        /// <param name="LogFolder">LogFolder</param>
+        /// <param name="fileToExportTo">fileToExportTo</param>
+        /// <returns>Number of Orders</returns>
+        public int ExportToCsvForMonth(int SeedInvoiceNumber, string LogFolder, string fileToExportTo)
+		{
+
+			#region Define Xero file
+
+			string[] XeroHeader = {"ContactName",
+									  "EmailAddress",
+									  "POAddressLine1",
+									  "POAddressLine2",
+									  "POAddressLine3",
+									  "POAddressLine4",
+									  "POCity",
+									  "PORegion",
+									  "POPostalCode",
+									  "POCountry",
+									  "InvoiceNumber",
+									  "Reference",
+									  "InvoiceDate",
+									  "DueDate",
+									  "SubTotal",
+									  "TotalTax",
+									  "Total",
+									  "Description",
+									  "Quantity",
+									  "UnitAmount",
+									  "AccountCode",
+									  "TaxType",
+									  "TaxAmount",
+									  "TrackingName1",
+									  "TrackingOption1",
+									  "TrackingName2",
+									  "TrackingOption2",
+									  "Currency",
+									  "BrandingTheme"
+								  };
+
+			#endregion
+
+			#region Get Items associated with Unsubmitted Orders
+
+			clsItem thisItem = new clsItem(thisDbType, localRecords.dbConnection);
+
+            int numOrderItems = thisItem.GetByOrderSubmittedOrderCreatedMechanism(0, orderCreatedMechanism_byVendorAutomatically());
+
+            #endregion
+
+			#region Create Export File
+
+			string FileNameForExport = LogFolder + fileToExportTo;
+
+            clsCsvWriter thisCsvWriter = new clsCsvWriter(FileNameForExport, true);
+            thisCsvWriter.WriteFields(XeroHeader);
+
+            #endregion
+
+            #region Get Default Data
+
+            int LastInvoiceNumber = 0;
+
+            int rollingInvoiceIncrement = -1;
+
+
+            string ContactName = "";
+            string EmailAddress = "";
+
+            string BillingAddressLine1 = "";
+            string BillingAddressLine2 = "";
+            string BillingAddressLine3 = "";
+            string BillingAddressLine4 = "";
+            string POCity = "";
+            string PORegion = "";
+            string POPostalCode = "";
+            string POCountry = "";
+
+            string AccountOrderNumber = "";
+            string BatchLineItemExportNumber = "";
+
+            string Reference = "";
+
+            string InvoiceDate = "";
+            string DueDate = "";
+            string SubTotal = "";
+            string TotalTax = "";
+            string Total = "";
+
+            string Description = "";
+            //int thisPropertyId = 0;
+
+            int thisProdcutId = 0;
+
+            decimal dQuantity = 0;
+
+            string Quantity = String.Format("{0:0.00}", dQuantity);
+
+            //int NumPurchaseInstances = 0;
+
+            //int ProductChargingFrequencyType = 0;
+
+            string UnitAmount = "";
+            string AccountCode = "";
+            string TaxType = "";
+
+            //productChargingMechanismType thisChargeType = productChargingMechanismType.automaticCreditCardCharge;
+
+            string TaxAmount = "";
+
+            string TrackingName1 = "";
+            string TrackingOption1 = "";
+            string TrackingName2 = "";
+            string TrackingOption2 = "";
+            string Currency = "";
+            string BrandingTheme = "";
+            string DDAccountNumber = "";
+
+            #endregion
+
+            for (int counter = 0; counter < numOrderItems; counter++)
+			{
+
+				#region Deal with Invoice Numbers
+
+				int thisInvoiceNumber = Convert.ToInt32(thisItem.my_Order_OrderNum(counter));
+
+				string InvoiceNumber = "";
+
+				if (thisInvoiceNumber != LastInvoiceNumber)
+				{
+					#region New invoice; increment invoice number
+
+					rollingInvoiceIncrement++;
+					LastInvoiceNumber = thisInvoiceNumber;
+
+					#endregion
+
+				}
+
+				InvoiceNumber = (SeedInvoiceNumber + rollingInvoiceIncrement).ToString();
+
+				#endregion
+
+				//DDAccountNumber = thisItem.my_Order_DDAccountNumber(counter);
+
+				ContactName = thisItem.my_Order_FullName(counter);
+				EmailAddress = thisItem.my_Order_Email(counter);
+
+                #region Deal with Address
+
+                string FullAddress = thisItem.my_Order_QuickPostalAddress(counter);
+				if (!FullAddress.EndsWith(crLf))
+					FullAddress += crLf;
+
+				ArrayList AddressLines = DelimitedListToArrayList(FullAddress, crLf);
+
+				int numLines = AddressLines.Count;
+
+				POCity = "";
+				PORegion = "";
+				POPostalCode = "";
+				POCountry = "";
+
+				#region Country is the last line of the address
+
+				if (numLines > 0)
+                {
+					POCountry = ((string)AddressLines[numLines - 1]).Trim();
+					numLines--;
+				}
+
+				#endregion
+
+				#region City is the second to last line of the address
+
+				if (numLines > 0)
+				{
+					POCity = ((string)AddressLines[numLines - 1]).Trim();
+					numLines--;
+
+					int lastSpaceInCity = POCity.LastIndexOf(" ");
+
+					if (lastSpaceInCity > -1)
+                    {
+						#region Check if last word is PostCode
+
+						string lastWord = POCity.Substring(lastSpaceInCity).Trim();
+
+						if (isNumerical(lastWord))
+                        {
+							POPostalCode = lastWord;
+						}
+
+						#endregion
+					}
+                }
+
+				#endregion
+
+				#region Rest of Address
+
+				if (numLines > 0)
+				{
+					BillingAddressLine1 = ((string)AddressLines[0]).Trim();
+				}
+				else
+					BillingAddressLine1 = "";
+
+
+				if (numLines > 1)
+					BillingAddressLine2 = ((string)AddressLines[1]).Trim();
+				else
+					BillingAddressLine2 = "";
+
+				if (numLines > 2)
+					BillingAddressLine3 = ((string)AddressLines[2]).Trim();
+				else
+					BillingAddressLine3 = "";
+
+				if (numLines > 3)
+                {
+					BillingAddressLine4 = ((string)AddressLines[3]).Trim();
+
+					for (int adCounter = 4; adCounter < numLines; adCounter++)
+						BillingAddressLine4 += crLf + ((string)AddressLines[adCounter]).Trim();
+
+				}
+				else
+					BillingAddressLine4 = "";
+
+				#endregion
+
+				#endregion
+
+				if (Setting == null)
+					Setting = new clsSetting(thisDbType, localRecords.dbConnection);
+
+				AccountOrderNumber = thisItem.my_Order_OrderNum(counter);
+
+				Reference =
+					"~" + AccountOrderNumber;
+
+				InvoiceDate = DateTime.Now.ToShortDateString();
+				DueDate = Convert.ToDateTime(thisItem.my_Order_DateDue(counter)).ToShortDateString();
+
+				SubTotal = "";
+				TotalTax = "";
+				Total = "";
+
+				Description = thisItem.my_ShortDescription(counter);
+
+				//thisPropertyId = thisItem.my_Order_PropertyId(counter);
+
+				thisProdcutId = thisItem.my_ProductId(counter);
+
+				dQuantity = thisItem.my_Quantity(counter);
+				Quantity = String.Format("{0:0.00}", dQuantity);
+
+				//NumPurchaseInstances = thisItem.my_NumPurchaseInstances(counter);
+
+				//if (thisProdcutId == 1)
+				//{
+				//	if (NumPurchaseInstances == 1)
+				//		Description += "; 1 Transaction";
+				//	else
+				//		Description += "; " + NumPurchaseInstances.ToString() + " Transactions";
+
+				//}
+
+				//ProductChargingFrequencyType = thisItem.my_Order_ProductChargingFrequencyType(counter);
+
+				UnitAmount = String.Format("{0:0.00}", thisItem.my_Order_TotalItemCostExcludingTax(counter) / dQuantity);
+
+				AccountCode = "";
+				TaxType = @"15% GST on Income";
+
+
+				//thisChargeType = (productChargingMechanismType)thisItem.my_Order_ProductChargingMechanismType(counter);
+
+				bool DDAccountNumberPresent = false;
+				bool CCAccountNumberPresent = false;
+
+				Currency = "NZD";
+				BrandingTheme = "";
+
+				//					thisCsvWriter[(int) thisChargeType].WriteFields(
+
+				thisCsvWriter.WriteFields(
+					ContactName,
+					EmailAddress,
+					BillingAddressLine1,
+					BillingAddressLine2,
+					BillingAddressLine3,
+					BillingAddressLine4,
+					POCity,
+					PORegion,
+					POPostalCode,
+					POCountry,
+					InvoiceNumber,
+					Reference,
+					InvoiceDate,
+					DueDate,
+					SubTotal,
+					TotalTax,
+					Total,
+					Description,
+					Quantity,
+					UnitAmount,
+					AccountCode,
+					TaxType,
+					TaxAmount,
+					TrackingName1,
+					TrackingOption1,
+					TrackingName2,
+					TrackingOption2,
+					Currency,
+					BrandingTheme
+					);
+
+			}
+
+
+            thisCsvWriter.Close();
+
+
+            return numOrderItems;
+
+        }
+
+        #endregion
+
+        #region ProcessOrder
+
+        /// <summary>
+        /// Function that allows processing of an order
+        /// </summary>
+        /// <param name="OrderId">Id of Order</param>
+        /// <param name="DateProcessed">Date Processed</param>
+        public void ProcessOrder(int OrderId, string DateProcessed)
 		{
 			int OrderPaid = 1;
 
@@ -1347,20 +2031,16 @@ namespace Keyholders
 
 		#endregion
 
-		# region Add/Modify/Validate
+		#region AddEasy
 
-		/// <summary>
-		/// If there are no Errors, this method adds a new entry to the 
-		/// internal customer table stack; the Save method will save these
-		/// to the database when it is subsequently called
-		/// </summary>
+		/// <summary>AddEasy</summary>
 		/// <param name="PersonId">Person Associated with this Order (if any)</param>
 		/// <param name="CustomerId">Customer Associated with this Order</param>
 		/// <param name="OrderNum">Customer's Order Number</param>
 		/// <param name="OrderStatusId">Order Status</param>
 		/// <param name="OrderCreatedMechanism">Mechanism by which this Order was created</param>
 		/// <param name="SupplierComment">Supplier Comment</param>
-		public void Add(int PersonId,
+		public void AddEasy(int PersonId,
 			int CustomerId,
 			string OrderNum,
 			int OrderCreatedMechanism,
@@ -1368,81 +2048,725 @@ namespace Keyholders
 			string SupplierComment)
 		{
 
-			//Reinitialise the Error and Warning Count
-			ResetWarningAndErrorTables();
-			
-			System.Data.DataRow rowToAdd = newDataToAdd.NewRow();
-
 			DateTime thisUTCDateTime = DateTime.UtcNow;
 
 			clsPerson Person = new clsPerson(thisDbType, localRecords.dbConnection);
 
 			int numPeople = Person.GetByPersonId(PersonId);
 
-			rowToAdd["CustomerId"] = CustomerId;
+            #region Default Data
+
+            int CustomerGroupId = -1;
+			int CustomerType = -1;
+			string FullName = "";
+			string Title = "";
+			string FirstName = "";
+			string LastName = "";
+			string QuickPostalAddress = "";
+			string QuickDaytimePhone = "";
+			string QuickDaytimeFax = "";
+			string QuickAfterHoursPhone = "";
+			string QuickAfterHoursFax = "";
+			string QuickMobilePhone = "";
+			int CountryId = -1;
+			string Email = "";
+
+			int PaymentMethodTypeId = paymentMethodType_asYetUndetermined();
+			int OrderPaid = 0;
+			int OrderSubmitted = 0;
+
+			string DateCreated = localRecords.DBDateTime(FromUtcToClientTime(thisUTCDateTime));
+			string DateCreatedUtc = localRecords.DBDateTime(thisUTCDateTime);
+			string DateSubmitted = "";
+			string DateSubmittedUtc = "";
+			string DateProcessed = "";
+			string DateProcessedUtc = "";
+			string DateShipped = "";
+			string DateShippedUtc = "";
+			string DateDue = "";
+			int InvoiceRequested = 0;
+			string DateInvoiceLastPrinted = "";
+			decimal TaxRateAtTimeOfOrder = localTaxRate - 1;
+			decimal TaxAppliedToOrder = 0;
+
+			decimal Total = 0;
+			decimal FreightCost = 0;
+			decimal TaxCost = 0;
+			decimal TotalItemWeight = 0;
+			decimal TotalItemCost = 0;
+			decimal TotalItemFreightCost = 0;
+			int IsInvoiceOrder = 0;
+			int NumItems = 0;
+
+			#endregion
 
 			if (numPeople != 0)
 			{
-				rowToAdd["PersonId"] = PersonId;
-				rowToAdd["CustomerId"] = Person.my_CustomerId(0);
-				rowToAdd["CustomerGroupId"] = Person.my_Customer_CustomerGroupId(0);
-				rowToAdd["CustomerType"] = Person.my_Customer_CustomerType(0);
-				rowToAdd["FullName"] = Person.my_Customer_FullName(0);
-				rowToAdd["Title"] = Person.my_Title(0);
-				rowToAdd["FirstName"] = Person.my_FirstName(0);
-				rowToAdd["LastName"] = Person.my_LastName(0);
-				rowToAdd["QuickPostalAddress"] = Person.my_QuickPostalAddress(0);
-				rowToAdd["QuickDaytimePhone"] = Person.my_QuickDaytimePhone(0);
-				rowToAdd["QuickDaytimeFax"] = Person.my_QuickDaytimeFax(0);
-				rowToAdd["QuickAfterHoursPhone"] = Person.my_QuickAfterHoursPhone(0);
-				rowToAdd["QuickAfterHoursFax"] = Person.my_QuickAfterHoursFax(0);
-				rowToAdd["QuickMobilePhone"] = Person.my_QuickMobilePhone(0);
-				rowToAdd["CountryId"] = Person.my_Customer_CountryId(0);
-				rowToAdd["Email"] = Person.my_Email(0);
+				CustomerId = Person.my_CustomerId(0);
+				CustomerGroupId = Person.my_Customer_CustomerGroupId(0);
+				CustomerType = Person.my_Customer_CustomerType(0);
+				FullName = Person.my_Customer_FullName(0);
+				Title = Person.my_Title(0);
+				FirstName = Person.my_FirstName(0);
+				LastName = Person.my_LastName(0);
+				QuickPostalAddress = Person.my_QuickPostalAddress(0);
+				QuickDaytimePhone = Person.my_QuickDaytimePhone(0);
+				QuickDaytimeFax = Person.my_QuickDaytimeFax(0);
+				QuickAfterHoursPhone = Person.my_QuickAfterHoursPhone(0);
+				QuickAfterHoursFax = Person.my_QuickAfterHoursFax(0);
+				QuickMobilePhone = Person.my_QuickMobilePhone(0);
+				CountryId = Person.my_Customer_CountryId(0);
+				Email = Person.my_Email(0);
 			}
 			else
 			{
-				rowToAdd["PersonId"] = DBNull.Value;
-				rowToAdd["CustomerGroupId"] = publicCustomerGroupId;
-				rowToAdd["CustomerType"] = 0;
-				rowToAdd["FullName"] = "";
-				rowToAdd["Title"] = "";
-				rowToAdd["FirstName"] = "";
-				rowToAdd["LastName"] = "";
-				rowToAdd["QuickPostalAddress"] = "";
-				rowToAdd["QuickDaytimePhone"] = "";
-				rowToAdd["QuickDaytimeFax"] = "";
-				rowToAdd["QuickAfterHoursPhone"] = "";
-				rowToAdd["QuickAfterHoursFax"] = "";
-				rowToAdd["QuickMobilePhone"] = "";
-				rowToAdd["CountryId"] = assumedCountryId;
-				rowToAdd["Email"] = "";
+				PersonId = 0;
+				CustomerGroupId = publicCustomerGroupId;
+				CustomerType = 0;
+				FullName = "";
+				Title = "";
+				FirstName = "";
+				LastName = "";
+				QuickPostalAddress = "";
+				QuickDaytimePhone = "";
+				QuickDaytimeFax = "";
+				QuickAfterHoursPhone = "";
+				QuickAfterHoursFax = "";
+				QuickMobilePhone = "";
+				CountryId = assumedCountryId;
+				Email = "";
 			}
 
-			rowToAdd["OrderNum"] = OrderNum;
-			rowToAdd["PaymentMethodTypeId"] = paymentMethodType_asYetUndetermined();
-			rowToAdd["OrderPaid"] = 0;
-			rowToAdd["OrderCreatedMechanism"] = OrderCreatedMechanism;
-			rowToAdd["OrderSubmitted"] = 0;
-			rowToAdd["OrderStatusId"] = OrderStatusId;
-			rowToAdd["SupplierComment"] = SupplierComment;
-			rowToAdd["DateCreated"] = localRecords.DBDateTime(FromUtcToClientTime(thisUTCDateTime));
-			rowToAdd["DateCreatedUtc"] = localRecords.DBDateTime(thisUTCDateTime);
-			rowToAdd["DateSubmitted"] = DBNull.Value;
-			rowToAdd["DateSubmittedUtc"] = DBNull.Value;
-			rowToAdd["DateProcessed"] = DBNull.Value;
-			rowToAdd["DateProcessedUtc"] = DBNull.Value;
-			rowToAdd["DateShipped"] = DBNull.Value;
-			rowToAdd["DateShippedUtc"] = DBNull.Value;
-			rowToAdd["DateDue"] = DBNull.Value;
-			rowToAdd["InvoiceRequested"] = 0;
-			rowToAdd["DateInvoiceLastPrinted"] = DBNull.Value;
-			rowToAdd["TaxRateAtTimeOfOrder"] = localTaxRate - 1;
-			rowToAdd["TaxAppliedToOrder"] = DBNull.Value;
+			Add(
+		        CustomerId,
 
-			rowToAdd["Total"] = 0;
-			rowToAdd["FreightCost"] = DBNull.Value;
-			rowToAdd["TaxCost"] = DBNull.Value;
+		        PersonId,
+		        PaymentMethodTypeId,
+		        CustomerGroupId,
+
+		        OrderNum,
+
+		        CustomerType,
+
+		        FullName,
+		        Title,
+		        FirstName,
+		        LastName,
+		        QuickPostalAddress,
+
+		        QuickDaytimePhone,
+		        QuickDaytimeFax,
+
+		        QuickAfterHoursPhone,
+		        QuickAfterHoursFax,
+		        QuickMobilePhone,
+
+		        CountryId,
+
+		        Email,
+
+		        OrderSubmitted,
+
+		        OrderPaid,
+
+		        OrderCreatedMechanism,
+
+		        OrderStatusId,
+
+		        SupplierComment,
+
+		        DateCreated,
+		        DateCreatedUtc,
+		        DateSubmitted,
+		        DateSubmittedUtc,
+		        DateProcessed,
+		        DateProcessedUtc,
+		        DateShipped,
+		        DateShippedUtc,
+		        DateDue,
+
+		        InvoiceRequested,
+
+		        DateInvoiceLastPrinted,
+
+		        TaxAppliedToOrder,
+		        TaxRateAtTimeOfOrder,
+		        TaxCost,
+		        FreightCost,
+		        Total,
+		        TotalItemWeight,
+		        TotalItemCost,
+		        TotalItemFreightCost,
+
+		        IsInvoiceOrder,
+		        NumItems
+		   );
+
+			//rowToAdd["PaymentMethodTypeId"] = paymentMethodType_asYetUndetermined();
+			//rowToAdd["OrderPaid"] = 0;
+			//rowToAdd["OrderCreatedMechanism"] = OrderCreatedMechanism;
+			//rowToAdd["OrderSubmitted"] = 0;
+			//rowToAdd["OrderStatusId"] = OrderStatusId;
+			//rowToAdd["SupplierComment"] = SupplierComment;
+			//rowToAdd["DateCreated"] = localRecords.DBDateTime(FromUtcToClientTime(thisUTCDateTime));
+			//rowToAdd["DateCreatedUtc"] = localRecords.DBDateTime(thisUTCDateTime);
+			//rowToAdd["DateSubmitted"] = DBNull.Value;
+			//rowToAdd["DateSubmittedUtc"] = DBNull.Value;
+			//rowToAdd["DateProcessed"] = DBNull.Value;
+			//rowToAdd["DateProcessedUtc"] = DBNull.Value;
+			//rowToAdd["DateShipped"] = DBNull.Value;
+			//rowToAdd["DateShippedUtc"] = DBNull.Value;
+			//rowToAdd["DateDue"] = DBNull.Value;
+			//rowToAdd["InvoiceRequested"] = 0;
+			//rowToAdd["DateInvoiceLastPrinted"] = DBNull.Value;
+			//rowToAdd["TaxRateAtTimeOfOrder"] = localTaxRate - 1;
+			//rowToAdd["TaxAppliedToOrder"] = DBNull.Value;
+
+			//rowToAdd["Total"] = 0;
+			//rowToAdd["FreightCost"] = DBNull.Value;
+			//rowToAdd["TaxCost"] = DBNull.Value;
+
+			////Validate the data supplied
+			//Validate(rowToAdd, true);
+
+			//if (NumErrors() == 0)
+			//{
+			//	newDataToAdd.Rows.Add(rowToAdd);
+			//}
+
+		}
+
+		#endregion
+
+		#region ModifyEasy
+
+		/// <summary>ModifyEasy</summary>
+		/// <param name="OrderId">OrderId (Primary Key of Record)</param>
+		/// <param name="PersonId">Person Associated with this Order</param>
+		/// <param name="OrderNum">Customer's Order Number</param>
+		/// <param name="OrderStatusId">Supplier Status</param>
+		/// <param name="SupplierComment">Supplier Comment</param>
+		public void ModifyEasy(int OrderId,
+			int PersonId,
+			string OrderNum,
+			int OrderStatusId,
+			string SupplierComment)
+		{
+
+			DateTime thisUTCDateTime = DateTime.UtcNow;
+			////Reinitialise the Error and Warning Count
+			//ResetWarningAndErrorTables();
+
+			////Validate the data supplied
+			//System.Data.DataRow rowToAdd = dataToBeModified.NewRow();
+
+			clsPerson Person = new clsPerson(thisDbType, localRecords.dbConnection);
+
+			int numPeople = Person.GetByPersonId(PersonId);
+
+			clsOrder thisOrder = new clsOrder(thisDbType, localRecords.dbConnection);
+			thisOrder.GetByOrderId(OrderId);
+
+			#region Default Data
+
+			int CustomerId = -1;
+			int CustomerGroupId = -1;
+			int CustomerType = -1;
+			string FullName = "";
+			string Title = "";
+			string FirstName = "";
+			string LastName = "";
+			string QuickPostalAddress = "";
+			string QuickDaytimePhone = "";
+			string QuickDaytimeFax = "";
+			string QuickAfterHoursPhone = "";
+			string QuickAfterHoursFax = "";
+			string QuickMobilePhone = "";
+			int CountryId = -1;
+			string Email = "";
+
+			int PaymentMethodTypeId = paymentMethodType_asYetUndetermined();
+			int OrderPaid = 0;
+			int OrderCreatedMechanism = orderCreatedMechanism_byVendorAutomatically();
+			int OrderSubmitted = 0;
+
+			string DateCreated = localRecords.DBDateTime(FromUtcToClientTime(thisUTCDateTime));
+			string DateCreatedUtc = localRecords.DBDateTime(thisUTCDateTime);
+			string DateSubmitted = "";
+			string DateSubmittedUtc = "";
+			string DateProcessed = "";
+			string DateProcessedUtc = "";
+			string DateShipped = "";
+			string DateShippedUtc = "";
+			string DateDue = "";
+			int InvoiceRequested = 0;
+			string DateInvoiceLastPrinted = "";
+			decimal TaxRateAtTimeOfOrder = localTaxRate - 1;
+			decimal TaxAppliedToOrder = 0;
+
+			decimal Total = 0;
+			decimal FreightCost = 0;
+			decimal TaxCost = 0;
+			decimal TotalItemWeight = 0;
+			decimal TotalItemCost = 0;
+			decimal TotalItemFreightCost = 0;
+			int IsInvoiceOrder = 0;
+			int NumItems = 0;
+
+			#endregion
+
+
+			if (numPeople != 0)
+			{
+				if (PersonId != thisOrder.my_PersonId(0))
+				{
+					CustomerId = Person.my_CustomerId(0);
+					CustomerGroupId = Person.my_Customer_CustomerGroupId(0);
+					CustomerType = Person.my_Customer_CustomerType(0);
+					FullName = Person.my_Customer_FullName(0);
+					Title = Person.my_Title(0);
+					FirstName = Person.my_FirstName(0);
+					LastName = Person.my_LastName(0);
+					QuickPostalAddress = Person.my_QuickPostalAddress(0);
+					QuickDaytimePhone = Person.my_QuickDaytimePhone(0);
+					QuickDaytimeFax = Person.my_QuickDaytimeFax(0);
+					QuickAfterHoursPhone = Person.my_QuickAfterHoursPhone(0);
+					QuickAfterHoursFax = Person.my_QuickAfterHoursFax(0);
+					QuickMobilePhone = Person.my_QuickMobilePhone(0);
+					CountryId = Person.my_Customer_CountryId(0);
+					Email = Person.my_Email(0);
+				}
+				else
+				{
+					CustomerId = thisOrder.my_CustomerId(0);
+					CustomerGroupId = thisOrder.my_Customer_CustomerGroupId(0);
+					CustomerType = thisOrder.my_Customer_CustomerType(0);
+					FullName = thisOrder.my_FullName(0);
+					Title = thisOrder.my_Title(0);
+					FirstName = thisOrder.my_FirstName(0);
+					LastName = thisOrder.my_LastName(0);
+					QuickPostalAddress = thisOrder.my_QuickPostalAddress(0);
+					QuickDaytimePhone = thisOrder.my_QuickDaytimePhone(0);
+					QuickDaytimeFax = thisOrder.my_QuickDaytimeFax(0);
+					QuickAfterHoursPhone = thisOrder.my_QuickAfterHoursPhone(0);
+					QuickAfterHoursFax = thisOrder.my_QuickAfterHoursFax(0);
+					QuickMobilePhone = thisOrder.my_QuickMobilePhone(0);
+					CountryId = thisOrder.my_Customer_CountryId(0);
+					Email = thisOrder.my_Email(0);
+				}
+			}
+			else
+			{
+				CustomerId = 0;
+				CustomerGroupId = publicCustomerGroupId;
+				CustomerType = 0;
+				FullName = "";
+				Title = "";
+				FirstName = "";
+				LastName = "";
+				QuickPostalAddress = "";
+				QuickDaytimePhone = "";
+				QuickDaytimeFax = "";
+				QuickAfterHoursPhone = "";
+				QuickAfterHoursFax = "";
+				QuickMobilePhone = "";
+				CountryId = assumedCountryId;
+				Email = "";
+			}
+
+
+			//Rest is copied form the old order
+			DateCreated = thisOrder.my_DateCreated(0);
+			DateCreatedUtc = thisOrder.my_DateCreatedUtc(0);
+
+			DateProcessed = thisOrder.my_DateProcessed(0);
+			DateProcessedUtc = thisOrder.my_DateProcessedUtc(0);
+
+			DateShipped = thisOrder.my_DateProcessed(0);
+			DateShippedUtc = thisOrder.my_DateProcessed(0);
+
+			DateSubmitted = thisOrder.my_DateSubmitted(0);
+			DateSubmittedUtc = thisOrder.my_DateSubmittedUtc(0);
+
+			DateDue = thisOrder.my_DateDue(0);
+
+			InvoiceRequested = thisOrder.my_InvoiceRequested(0);
+			DateInvoiceLastPrinted = thisOrder.my_DateInvoiceLastPrinted(0);
+
+			OrderSubmitted = 0;
+			PaymentMethodTypeId = thisOrder.my_PaymentMethodTypeId(0);
+			OrderPaid = thisOrder.my_OrderPaid(0);
+			OrderCreatedMechanism = thisOrder.my_OrderCreatedMechanism(0);
+			OrderStatusId = thisOrder.my_OrderStatusId(0);
+			SupplierComment = thisOrder.my_SupplierComment(0);
+			OrderNum = thisOrder.my_OrderNum(0);
+			TaxRateAtTimeOfOrder = thisOrder.my_TaxRateAtTimeOfOrder(0);
+			TaxAppliedToOrder = thisOrder.my_TaxAppliedToOrder(0);
+
+			//Reset Costs
+			Total = 0;
+			FreightCost = 0;
+			TaxCost = 0;
+
+			Modify(
+			   OrderId,
+			   CustomerId,
+
+			   PersonId,
+			   PaymentMethodTypeId,
+			   CustomerGroupId,
+
+			   OrderNum,
+
+			   CustomerType,
+
+			   FullName,
+			   Title,
+			   FirstName,
+			   LastName,
+			   QuickPostalAddress,
+
+			   QuickDaytimePhone,
+			   QuickDaytimeFax,
+
+			   QuickAfterHoursPhone,
+			   QuickAfterHoursFax,
+			   QuickMobilePhone,
+
+			   CountryId,
+
+			   Email,
+
+			   OrderSubmitted,
+
+			   OrderPaid,
+
+			   OrderCreatedMechanism,
+
+			   OrderStatusId,
+
+			   SupplierComment,
+
+			   DateCreated,
+			   DateCreatedUtc,
+			   DateSubmitted,
+			   DateSubmittedUtc,
+			   DateProcessed,
+			   DateProcessedUtc,
+			   DateShipped,
+			   DateShippedUtc,
+			   DateDue,
+
+			   InvoiceRequested,
+
+			   DateInvoiceLastPrinted,
+
+			   TaxAppliedToOrder,
+			   TaxRateAtTimeOfOrder,
+			   TaxCost,
+			   FreightCost,
+			   Total,
+			   TotalItemWeight,
+			   TotalItemCost,
+			   TotalItemFreightCost,
+
+			   IsInvoiceOrder,
+			   NumItems
+			   );
+
+			//if (numPeople != 0)
+			//{
+			//	if (PersonId != thisOrder.my_PersonId(0))
+			//	{
+			//		rowToAdd["CustomerId"] = Person.my_CustomerId(0);
+			//		rowToAdd["CustomerGroupId"] = Person.my_Customer_CustomerGroupId(0);
+			//		rowToAdd["CustomerType"] = Person.my_Customer_CustomerType(0);
+			//		rowToAdd["FullName"] = Person.my_Customer_FullName(0);
+			//		rowToAdd["Title"] = Person.my_Title(0);
+			//		rowToAdd["FirstName"] = Person.my_FirstName(0);
+			//		rowToAdd["LastName"] = Person.my_LastName(0);
+			//		rowToAdd["QuickPostalAddress"] = Person.my_QuickPostalAddress(0);
+			//		rowToAdd["QuickDaytimePhone"] = Person.my_QuickDaytimePhone(0);
+			//		rowToAdd["QuickDaytimeFax"] = Person.my_QuickDaytimeFax(0);
+			//		rowToAdd["QuickAfterHoursPhone"] = Person.my_QuickAfterHoursPhone(0);
+			//		rowToAdd["QuickAfterHoursFax"] = Person.my_QuickAfterHoursFax(0);
+			//		rowToAdd["QuickMobilePhone"] = Person.my_QuickMobilePhone(0);
+			//		rowToAdd["CountryId"] = Person.my_Customer_CountryId(0);
+			//		rowToAdd["Email"] = Person.my_Email(0);
+			//	}
+			//	else
+			//	{
+			//		rowToAdd["CustomerId"] = thisOrder.my_CustomerId(0);
+			//		rowToAdd["CustomerGroupId"] = thisOrder.my_Customer_CustomerGroupId(0);
+			//		rowToAdd["CustomerType"] = thisOrder.my_Customer_CustomerType(0);
+			//		rowToAdd["FullName"] = thisOrder.my_FullName(0);
+			//		rowToAdd["Title"] = thisOrder.my_Title(0);
+			//		rowToAdd["FirstName"] = thisOrder.my_FirstName(0);
+			//		rowToAdd["LastName"] = thisOrder.my_LastName(0);
+			//		rowToAdd["QuickPostalAddress"] = thisOrder.my_QuickPostalAddress(0);
+			//		rowToAdd["QuickDaytimePhone"] = thisOrder.my_QuickDaytimePhone(0);
+			//		rowToAdd["QuickDaytimeFax"] = thisOrder.my_QuickDaytimeFax(0);
+			//		rowToAdd["QuickAfterHoursPhone"] = thisOrder.my_QuickAfterHoursPhone(0);
+			//		rowToAdd["QuickAfterHoursFax"] = thisOrder.my_QuickAfterHoursFax(0);
+			//		rowToAdd["QuickMobilePhone"] = thisOrder.my_QuickMobilePhone(0);
+			//		rowToAdd["CountryId"] = thisOrder.my_Customer_CountryId(0);
+			//		rowToAdd["Email"] = thisOrder.my_Email(0);
+			//	}
+			//}
+			//else
+			//{
+			//	rowToAdd["CustomerId"] = DBNull.Value;
+			//	rowToAdd["CustomerGroupId"] = publicCustomerGroupId;
+			//	rowToAdd["CustomerType"] = 0;
+			//	rowToAdd["FullName"] = "";
+			//	rowToAdd["Title"] = "";
+			//	rowToAdd["FirstName"] = "";
+			//	rowToAdd["LastName"] = "";
+			//	rowToAdd["QuickPostalAddress"] = "";
+			//	rowToAdd["QuickDaytimePhone"] = "";
+			//	rowToAdd["QuickDaytimeFax"] = "";
+			//	rowToAdd["QuickAfterHoursPhone"] = "";
+			//	rowToAdd["QuickAfterHoursFax"] = "";
+			//	rowToAdd["QuickMobilePhone"] = "";
+			//	rowToAdd["CountryId"] = assumedCountryId;
+			//	rowToAdd["Email"] = "";
+			//}
+
+
+
+			//rowToAdd["PersonId"] = PersonId;
+			//rowToAdd["OrderNum"] = OrderNum;
+			//rowToAdd["OrderStatusId"] = OrderStatusId;
+			//rowToAdd["SupplierComment"] = SupplierComment;
+
+			////Rest is copied form the old order
+			//rowToAdd["DateCreated"] = SanitiseDate(thisOrder.my_DateCreated(0));
+			//rowToAdd["DateCreatedUtc"] =  SanitiseDate(thisOrder.my_DateCreatedUtc(0));
+
+			//rowToAdd["DateProcessed"] = SanitiseDate(thisOrder.my_DateProcessed(0));
+			//rowToAdd["DateProcessedUtc"] =  SanitiseDate(thisOrder.my_DateProcessedUtc(0));
+
+			//rowToAdd["DateShipped"] = SanitiseDate(thisOrder.my_DateProcessed(0));
+			//rowToAdd["DateShippedUtc"] =  SanitiseDate(thisOrder.my_DateProcessed(0));
+
+			//rowToAdd["DateSubmitted"] = SanitiseDate(thisOrder.my_DateSubmitted(0));
+			//rowToAdd["DateSubmittedUtc"] =  SanitiseDate(thisOrder.my_DateSubmittedUtc(0));
+
+			//rowToAdd["DateDue"] = SanitiseDate(thisOrder.my_DateDue(0));
+
+			//rowToAdd["InvoiceRequested"] = thisOrder.my_InvoiceRequested(0);
+			//rowToAdd["DateInvoiceLastPrinted"] = SanitiseDate(thisOrder.my_DateInvoiceLastPrinted(0));
+
+			//rowToAdd["OrderSubmitted"] = 0;
+			//rowToAdd["PaymentMethodTypeId"] = thisOrder.my_PaymentMethodTypeId(0);
+			//rowToAdd["OrderPaid"] = thisOrder.my_OrderPaid(0);
+			//rowToAdd["OrderCreatedMechanism"] = thisOrder.my_OrderCreatedMechanism(0);
+			//rowToAdd["OrderStatusId"] = thisOrder.my_OrderStatusId(0);
+			//rowToAdd["SupplierComment"] = thisOrder.my_SupplierComment(0);
+			//rowToAdd["OrderNum"] = thisOrder.my_OrderNum(0);
+			//rowToAdd["TaxRateAtTimeOfOrder"] = thisOrder.my_TaxRateAtTimeOfOrder(0);
+			//rowToAdd["TaxAppliedToOrder"] = thisOrder.my_TaxAppliedToOrder(0);			
+
+			////Reset Costs
+			//rowToAdd["Total"] = DBNull.Value;
+			//rowToAdd["FreightCost"] = DBNull.Value;
+			//rowToAdd["TaxCost"] = DBNull.Value;
+
+			//Validate(rowToAdd, false);
+
+			//if (NumErrors() == 0)
+			//{
+			//	if (UserChanges(rowToAdd))
+			//		dataToBeModified.Rows.Add(rowToAdd);
+			//}
+
+		}
+
+		#endregion
+
+		#region Add/Modify/Validate
+
+		#region Add
+
+		/// <summary>Add</summary>
+		/// <param name="CustomerId">CustomerId</param>
+		/// <param name="PersonId">PersonId</param>
+		/// <param name="PaymentMethodTypeId">PaymentMethodTypeId</param>
+		/// <param name="CustomerGroupId">CustomerGroupId</param>
+		/// <param name="OrderNum">OrderNum</param>
+		/// <param name="CustomerType">CustomerType</param>
+		/// <param name="FullName">FullName</param>
+		/// <param name="Title">Title</param>
+		/// <param name="FirstName">FirstName</param>
+		/// <param name="LastName">LastName</param>
+		/// <param name="QuickPostalAddress">QuickPostalAddress</param>
+		/// <param name="QuickDaytimePhone">QuickDaytimePhone</param>
+		/// <param name="QuickDaytimeFax">QuickDaytimeFax</param>
+		/// <param name="QuickAfterHoursPhone">QuickAfterHoursPhone</param>
+		/// <param name="QuickAfterHoursFax">QuickAfterHoursFax</param>
+		/// <param name="QuickMobilePhone">QuickMobilePhone</param>
+		/// <param name="CountryId">CountryId</param>
+		/// <param name="Email">Email</param>
+		/// <param name="OrderSubmitted">OrderSubmitted</param>
+		/// <param name="OrderPaid">OrderPaid</param>
+		/// <param name="OrderCreatedMechanism">OrderCreatedMechanism</param>
+		/// <param name="OrderStatusId">OrderStatusId</param>
+		/// <param name="SupplierComment">SupplierComment</param>
+		/// <param name="DateCreated">DateCreated</param>
+		/// <param name="DateCreatedUtc">DateCreatedUtc</param>
+		/// <param name="DateSubmitted">DateSubmitted</param>
+		/// <param name="DateSubmittedUtc">DateSubmittedUtc</param>
+		/// <param name="DateProcessed">DateProcessed</param>
+		/// <param name="DateProcessedUtc">DateProcessedUtc</param>
+		/// <param name="DateShipped">DateShipped</param>
+		/// <param name="DateShippedUtc">DateShippedUtc</param>
+		/// <param name="DateDue">DateDue</param>
+		/// <param name="InvoiceRequested">InvoiceRequested</param>
+		/// <param name="DateInvoiceLastPrinted">DateInvoiceLastPrinted</param>
+		/// <param name="TaxAppliedToOrder">TaxAppliedToOrder</param>
+		/// <param name="TaxRateAtTimeOfOrder">TaxRateAtTimeOfOrder</param>
+		/// <param name="TaxCost">TaxCost</param>
+		/// <param name="FreightCost">FreightCost</param>
+		/// <param name="Total">Total</param>
+		/// <param name="TotalItemWeight">TotalItemWeight</param>
+		/// <param name="TotalItemCost">TotalItemCost</param>
+		/// <param name="TotalItemFreightCost">TotalItemFreightCost</param>
+		/// <param name="IsInvoiceOrder">IsInvoiceOrder</param>
+		/// <param name="NumItems">NumItems</param>
+		public void Add(
+		   int CustomerId,
+
+		   int PersonId,
+		   int PaymentMethodTypeId,
+		   int CustomerGroupId,
+
+		   string OrderNum,
+
+		   int CustomerType,
+
+		   string FullName,
+		   string Title,
+		   string FirstName,
+		   string LastName,
+		   string QuickPostalAddress,
+
+		   string QuickDaytimePhone,
+		   string QuickDaytimeFax,
+
+		   string QuickAfterHoursPhone,
+		   string QuickAfterHoursFax,
+		   string QuickMobilePhone,
+
+		   int CountryId,
+
+		   string Email,
+
+		   int OrderSubmitted,
+
+		   int OrderPaid,
+
+		   int OrderCreatedMechanism,
+
+		   int OrderStatusId,
+
+		   string SupplierComment,
+
+		   string DateCreated,
+		   string DateCreatedUtc,
+		   string DateSubmitted,
+		   string DateSubmittedUtc,
+		   string DateProcessed,
+		   string DateProcessedUtc,
+		   string DateShipped,
+		   string DateShippedUtc,
+		   string DateDue,
+
+		   int InvoiceRequested,
+
+		   string DateInvoiceLastPrinted,
+
+		   decimal TaxAppliedToOrder,
+		   decimal TaxRateAtTimeOfOrder,
+		   decimal TaxCost,
+		   decimal FreightCost,
+		   decimal Total,
+		   decimal TotalItemWeight,
+		   decimal TotalItemCost,
+		   decimal TotalItemFreightCost,
+
+		   int IsInvoiceOrder,
+		   int NumItems
+		   )
+		{
+
+			//Reinitialise the Error and Warning Count
+			ResetWarningAndErrorTables();
+
+			System.Data.DataRow rowToAdd = newDataToAdd.NewRow();
+
+
+			rowToAdd["CustomerId"] = CustomerId;
+			rowToAdd["PersonId"] = PersonId;
+			rowToAdd["PaymentMethodTypeId"] = PaymentMethodTypeId;
+			rowToAdd["CustomerGroupId"] = CustomerGroupId;
+
+			rowToAdd["OrderNum"] = OrderNum;
+
+			rowToAdd["CustomerType"] = CustomerType;
+
+			rowToAdd["FullName"] = FullName;
+			rowToAdd["Title"] = Title;
+			rowToAdd["FirstName"] = FirstName;
+			rowToAdd["LastName"] = LastName;
+			rowToAdd["QuickPostalAddress"] = QuickPostalAddress;
+
+			rowToAdd["QuickDaytimePhone"] = SanitiseDate(QuickDaytimePhone);
+			rowToAdd["QuickDaytimeFax"] = SanitiseDate(QuickDaytimeFax);
+
+			rowToAdd["QuickAfterHoursPhone"] = QuickAfterHoursPhone;
+			rowToAdd["QuickAfterHoursFax"] = QuickAfterHoursFax;
+			rowToAdd["QuickMobilePhone"] = QuickMobilePhone;
+
+			rowToAdd["CountryId"] = CountryId;
+
+			rowToAdd["Email"] = Email;
+
+			rowToAdd["OrderSubmitted"] = OrderSubmitted;
+
+			rowToAdd["OrderPaid"] = OrderPaid;
+
+			rowToAdd["OrderCreatedMechanism"] = OrderCreatedMechanism;
+
+			rowToAdd["OrderStatusId"] = OrderStatusId;
+
+			rowToAdd["SupplierComment"] = SupplierComment;
+
+			rowToAdd["DateCreated"] = SanitiseDate(DateCreated);
+			rowToAdd["DateCreatedUtc"] = SanitiseDate(DateCreatedUtc);
+			rowToAdd["DateSubmitted"] = SanitiseDate(DateSubmitted);
+			rowToAdd["DateSubmittedUtc"] = SanitiseDate(DateSubmittedUtc);
+			rowToAdd["DateProcessed"] = SanitiseDate(DateProcessed);
+			rowToAdd["DateProcessedUtc"] = SanitiseDate(DateProcessedUtc);
+			rowToAdd["DateShipped"] = SanitiseDate(DateShipped);
+			rowToAdd["DateShippedUtc"] = SanitiseDate(DateShippedUtc);
+			rowToAdd["DateDue"] = SanitiseDate(DateDue);
+
+			rowToAdd["InvoiceRequested"] = InvoiceRequested;
+
+			rowToAdd["DateInvoiceLastPrinted"] = SanitiseDate(DateInvoiceLastPrinted);
+
+			rowToAdd["TaxAppliedToOrder"] = TaxAppliedToOrder;
+			rowToAdd["TaxRateAtTimeOfOrder"] = TaxRateAtTimeOfOrder;
+			rowToAdd["TaxCost"] = TaxCost;
+			rowToAdd["FreightCost"] = FreightCost;
+			rowToAdd["Total"] = Total;
+			rowToAdd["TotalItemWeight"] = TotalItemWeight;
+			rowToAdd["TotalItemCost"] = TotalItemCost;
+			rowToAdd["TotalItemFreightCost"] = TotalItemFreightCost;
+
+			rowToAdd["IsInvoiceOrder"] = IsInvoiceOrder;
+			rowToAdd["NumItems"] = NumItems;
+
 
 			//Validate the data supplied
 			Validate(rowToAdd, true);
@@ -1454,140 +2778,196 @@ namespace Keyholders
 
 		}
 
+		#endregion
 
+		#region Modify
 
-		/// <summary>
-		/// Validates the supplied data for Errors and Warnings.
-		/// If any Errors are found, ErrorFound will return true, and these Errors 
-		/// are available through the ErrorMessage and ErrorFieldName methods
-		/// If any Warnings are found, WarningFound will return true, and these Warnings 
-		/// are available through the WarningMessage and WarningFieldName methods
-		/// If there are no Errors, this method adds a new entry to the 
-		/// internal customer table stack; the Save method will save these
-		/// to the database when it is subsequently called
-		/// </summary>
+		/// <summary>Modify</summary>
 		/// <param name="OrderId">OrderId (Primary Key of Record)</param>
-		/// <param name="PersonId">Person Associated with this Order</param>
-		/// <param name="OrderNum">Customer's Order Number</param>
-		/// <param name="OrderStatusId">Supplier Status</param>
-		/// <param name="SupplierComment">Supplier Comment</param>
-		public void Modify(int OrderId,
-			int PersonId,
-			string OrderNum,
-			int OrderStatusId,
-			string SupplierComment)
+		/// <param name="CustomerId">CustomerId</param>
+		/// <param name="PersonId">PersonId</param>
+		/// <param name="PaymentMethodTypeId">PaymentMethodTypeId</param>
+		/// <param name="CustomerGroupId">CustomerGroupId</param>
+		/// <param name="OrderNum">OrderNum</param>
+		/// <param name="CustomerType">CustomerType</param>
+		/// <param name="FullName">FullName</param>
+		/// <param name="Title">Title</param>
+		/// <param name="FirstName">FirstName</param>
+		/// <param name="LastName">LastName</param>
+		/// <param name="QuickPostalAddress">QuickPostalAddress</param>
+		/// <param name="QuickDaytimePhone">QuickDaytimePhone</param>
+		/// <param name="QuickDaytimeFax">QuickDaytimeFax</param>
+		/// <param name="QuickAfterHoursPhone">QuickAfterHoursPhone</param>
+		/// <param name="QuickAfterHoursFax">QuickAfterHoursFax</param>
+		/// <param name="QuickMobilePhone">QuickMobilePhone</param>
+		/// <param name="CountryId">CountryId</param>
+		/// <param name="Email">Email</param>
+		/// <param name="OrderSubmitted">OrderSubmitted</param>
+		/// <param name="OrderPaid">OrderPaid</param>
+		/// <param name="OrderCreatedMechanism">OrderCreatedMechanism</param>
+		/// <param name="OrderStatusId">OrderStatusId</param>
+		/// <param name="SupplierComment">SupplierComment</param>
+		/// <param name="DateCreated">DateCreated</param>
+		/// <param name="DateCreatedUtc">DateCreatedUtc</param>
+		/// <param name="DateSubmitted">DateSubmitted</param>
+		/// <param name="DateSubmittedUtc">DateSubmittedUtc</param>
+		/// <param name="DateProcessed">DateProcessed</param>
+		/// <param name="DateProcessedUtc">DateProcessedUtc</param>
+		/// <param name="DateShipped">DateShipped</param>
+		/// <param name="DateShippedUtc">DateShippedUtc</param>
+		/// <param name="DateDue">DateDue</param>
+		/// <param name="InvoiceRequested">InvoiceRequested</param>
+		/// <param name="DateInvoiceLastPrinted">DateInvoiceLastPrinted</param>
+		/// <param name="TaxAppliedToOrder">TaxAppliedToOrder</param>
+		/// <param name="TaxRateAtTimeOfOrder">TaxRateAtTimeOfOrder</param>
+		/// <param name="TaxCost">TaxCost</param>
+		/// <param name="FreightCost">FreightCost</param>
+		/// <param name="Total">Total</param>
+		/// <param name="TotalItemWeight">TotalItemWeight</param>
+		/// <param name="TotalItemCost">TotalItemCost</param>
+		/// <param name="TotalItemFreightCost">TotalItemFreightCost</param>
+		/// <param name="IsInvoiceOrder">IsInvoiceOrder</param>
+		/// <param name="NumItems">NumItems</param>
+		public void Modify(
+		   int OrderId,
+		   int CustomerId,
+
+		   int PersonId,
+		   int PaymentMethodTypeId,
+		   int CustomerGroupId,
+
+		   string OrderNum,
+
+		   int CustomerType,
+
+		   string FullName,
+		   string Title,
+		   string FirstName,
+		   string LastName,
+		   string QuickPostalAddress,
+
+		   string QuickDaytimePhone,
+		   string QuickDaytimeFax,
+
+		   string QuickAfterHoursPhone,
+		   string QuickAfterHoursFax,
+		   string QuickMobilePhone,
+
+		   int CountryId,
+
+		   string Email,
+
+		   int OrderSubmitted,
+
+		   int OrderPaid,
+
+		   int OrderCreatedMechanism,
+
+		   int OrderStatusId,
+
+		   string SupplierComment,
+
+		   string DateCreated,
+		   string DateCreatedUtc,
+		   string DateSubmitted,
+		   string DateSubmittedUtc,
+		   string DateProcessed,
+		   string DateProcessedUtc,
+		   string DateShipped,
+		   string DateShippedUtc,
+		   string DateDue,
+
+		   int InvoiceRequested,
+
+		   string DateInvoiceLastPrinted,
+
+		   decimal TaxAppliedToOrder,
+		   decimal TaxRateAtTimeOfOrder,
+		   decimal TaxCost,
+		   decimal FreightCost,
+		   decimal Total,
+		   decimal TotalItemWeight,
+		   decimal TotalItemCost,
+		   decimal TotalItemFreightCost,
+
+		   int IsInvoiceOrder,
+		   int NumItems
+		   )
 		{
 
 			//Reinitialise the Error and Warning Count
 			ResetWarningAndErrorTables();
 
-			//Validate the data supplied
 			System.Data.DataRow rowToAdd = dataToBeModified.NewRow();
 
-			clsPerson Person = new clsPerson(thisDbType, localRecords.dbConnection);
 
-			int numPeople = Person.GetByPersonId(PersonId);
+			rowToAdd["OrderId"] = OrderId;
 
-			clsOrder thisOrder = new clsOrder(thisDbType, localRecords.dbConnection);
-			thisOrder.GetByOrderId(OrderId);
-
-			if (numPeople != 0)
-			{
-				if (PersonId != thisOrder.my_PersonId(0))
-				{
-					rowToAdd["CustomerId"] = Person.my_CustomerId(0);
-					rowToAdd["CustomerGroupId"] = Person.my_Customer_CustomerGroupId(0);
-					rowToAdd["CustomerType"] = Person.my_Customer_CustomerType(0);
-					rowToAdd["FullName"] = Person.my_Customer_FullName(0);
-					rowToAdd["Title"] = Person.my_Title(0);
-					rowToAdd["FirstName"] = Person.my_FirstName(0);
-					rowToAdd["LastName"] = Person.my_LastName(0);
-					rowToAdd["QuickPostalAddress"] = Person.my_QuickPostalAddress(0);
-					rowToAdd["QuickDaytimePhone"] = Person.my_QuickDaytimePhone(0);
-					rowToAdd["QuickDaytimeFax"] = Person.my_QuickDaytimeFax(0);
-					rowToAdd["QuickAfterHoursPhone"] = Person.my_QuickAfterHoursPhone(0);
-					rowToAdd["QuickAfterHoursFax"] = Person.my_QuickAfterHoursFax(0);
-					rowToAdd["QuickMobilePhone"] = Person.my_QuickMobilePhone(0);
-					rowToAdd["CountryId"] = Person.my_Customer_CountryId(0);
-					rowToAdd["Email"] = Person.my_Email(0);
-				}
-				else
-				{
-					rowToAdd["CustomerId"] = thisOrder.my_CustomerId(0);
-					rowToAdd["CustomerGroupId"] = thisOrder.my_Customer_CustomerGroupId(0);
-					rowToAdd["CustomerType"] = thisOrder.my_Customer_CustomerType(0);
-					rowToAdd["FullName"] = thisOrder.my_FullName(0);
-					rowToAdd["Title"] = thisOrder.my_Title(0);
-					rowToAdd["FirstName"] = thisOrder.my_FirstName(0);
-					rowToAdd["LastName"] = thisOrder.my_LastName(0);
-					rowToAdd["QuickPostalAddress"] = thisOrder.my_QuickPostalAddress(0);
-					rowToAdd["QuickDaytimePhone"] = thisOrder.my_QuickDaytimePhone(0);
-					rowToAdd["QuickDaytimeFax"] = thisOrder.my_QuickDaytimeFax(0);
-					rowToAdd["QuickAfterHoursPhone"] = thisOrder.my_QuickAfterHoursPhone(0);
-					rowToAdd["QuickAfterHoursFax"] = thisOrder.my_QuickAfterHoursFax(0);
-					rowToAdd["QuickMobilePhone"] = thisOrder.my_QuickMobilePhone(0);
-					rowToAdd["CountryId"] = thisOrder.my_Customer_CountryId(0);
-					rowToAdd["Email"] = thisOrder.my_Email(0);
-				}
-			}
-			else
-			{
-				rowToAdd["CustomerId"] = DBNull.Value;
-				rowToAdd["CustomerGroupId"] = publicCustomerGroupId;
-				rowToAdd["CustomerType"] = 0;
-				rowToAdd["FullName"] = "";
-				rowToAdd["Title"] = "";
-				rowToAdd["FirstName"] = "";
-				rowToAdd["LastName"] = "";
-				rowToAdd["QuickPostalAddress"] = "";
-				rowToAdd["QuickDaytimePhone"] = "";
-				rowToAdd["QuickDaytimeFax"] = "";
-				rowToAdd["QuickAfterHoursPhone"] = "";
-				rowToAdd["QuickAfterHoursFax"] = "";
-				rowToAdd["QuickMobilePhone"] = "";
-				rowToAdd["CountryId"] = assumedCountryId;
-				rowToAdd["Email"] = "";
-			}
-
+			rowToAdd["CustomerId"] = CustomerId;
 			rowToAdd["PersonId"] = PersonId;
+			rowToAdd["PaymentMethodTypeId"] = PaymentMethodTypeId;
+			rowToAdd["CustomerGroupId"] = CustomerGroupId;
+
 			rowToAdd["OrderNum"] = OrderNum;
+
+			rowToAdd["CustomerType"] = CustomerType;
+
+			rowToAdd["FullName"] = FullName;
+			rowToAdd["Title"] = Title;
+			rowToAdd["FirstName"] = FirstName;
+			rowToAdd["LastName"] = LastName;
+			rowToAdd["QuickPostalAddress"] = QuickPostalAddress;
+
+			rowToAdd["QuickDaytimePhone"] = SanitiseDate(QuickDaytimePhone);
+			rowToAdd["QuickDaytimeFax"] = SanitiseDate(QuickDaytimeFax);
+
+			rowToAdd["QuickAfterHoursPhone"] = QuickAfterHoursPhone;
+			rowToAdd["QuickAfterHoursFax"] = QuickAfterHoursFax;
+			rowToAdd["QuickMobilePhone"] = QuickMobilePhone;
+
+			rowToAdd["CountryId"] = CountryId;
+
+			rowToAdd["Email"] = Email;
+
+			rowToAdd["OrderSubmitted"] = OrderSubmitted;
+
+			rowToAdd["OrderPaid"] = OrderPaid;
+
+			rowToAdd["OrderCreatedMechanism"] = OrderCreatedMechanism;
+
 			rowToAdd["OrderStatusId"] = OrderStatusId;
+
 			rowToAdd["SupplierComment"] = SupplierComment;
 
-			//Rest is copied form the old order
-			rowToAdd["DateCreated"] = SanitiseDate(thisOrder.my_DateCreated(0));
-			rowToAdd["DateCreatedUtc"] =  SanitiseDate(thisOrder.my_DateCreatedUtc(0));
+			rowToAdd["DateCreated"] = SanitiseDate(DateCreated);
+			rowToAdd["DateCreatedUtc"] = SanitiseDate(DateCreatedUtc);
+			rowToAdd["DateSubmitted"] = SanitiseDate(DateSubmitted);
+			rowToAdd["DateSubmittedUtc"] = SanitiseDate(DateSubmittedUtc);
+			rowToAdd["DateProcessed"] = SanitiseDate(DateProcessed);
+			rowToAdd["DateProcessedUtc"] = SanitiseDate(DateProcessedUtc);
+			rowToAdd["DateShipped"] = SanitiseDate(DateShipped);
+			rowToAdd["DateShippedUtc"] = SanitiseDate(DateShippedUtc);
+			rowToAdd["DateDue"] = SanitiseDate(DateDue);
 
-			rowToAdd["DateProcessed"] = SanitiseDate(thisOrder.my_DateProcessed(0));
-			rowToAdd["DateProcessedUtc"] =  SanitiseDate(thisOrder.my_DateProcessedUtc(0));
+			rowToAdd["InvoiceRequested"] = InvoiceRequested;
 
-			rowToAdd["DateShipped"] = SanitiseDate(thisOrder.my_DateProcessed(0));
-			rowToAdd["DateShippedUtc"] =  SanitiseDate(thisOrder.my_DateProcessed(0));
-			
-			rowToAdd["DateSubmitted"] = SanitiseDate(thisOrder.my_DateSubmitted(0));
-			rowToAdd["DateSubmittedUtc"] =  SanitiseDate(thisOrder.my_DateSubmittedUtc(0));
+			rowToAdd["DateInvoiceLastPrinted"] = SanitiseDate(DateInvoiceLastPrinted);
 
-			rowToAdd["DateDue"] = SanitiseDate(thisOrder.my_DateDue(0));
-		
-			rowToAdd["InvoiceRequested"] = thisOrder.my_InvoiceRequested(0);
-			rowToAdd["DateInvoiceLastPrinted"] = SanitiseDate(thisOrder.my_DateInvoiceLastPrinted(0));
+			rowToAdd["TaxAppliedToOrder"] = TaxAppliedToOrder;
+			rowToAdd["TaxRateAtTimeOfOrder"] = TaxRateAtTimeOfOrder;
+			rowToAdd["TaxCost"] = TaxCost;
+			rowToAdd["FreightCost"] = FreightCost;
+			rowToAdd["Total"] = Total;
+			rowToAdd["TotalItemWeight"] = TotalItemWeight;
+			rowToAdd["TotalItemCost"] = TotalItemCost;
+			rowToAdd["TotalItemFreightCost"] = TotalItemFreightCost;
 
-			rowToAdd["OrderSubmitted"] = 0;
-			rowToAdd["PaymentMethodTypeId"] = thisOrder.my_PaymentMethodTypeId(0);
-			rowToAdd["OrderPaid"] = thisOrder.my_OrderPaid(0);
-			rowToAdd["OrderCreatedMechanism"] = thisOrder.my_OrderCreatedMechanism(0);
-			rowToAdd["OrderStatusId"] = thisOrder.my_OrderStatusId(0);
-			rowToAdd["SupplierComment"] = thisOrder.my_SupplierComment(0);
-			rowToAdd["OrderNum"] = thisOrder.my_OrderNum(0);
-			rowToAdd["TaxRateAtTimeOfOrder"] = thisOrder.my_TaxRateAtTimeOfOrder(0);
-			rowToAdd["TaxAppliedToOrder"] = thisOrder.my_TaxAppliedToOrder(0);			
-			
-			//Reset Costs
-			rowToAdd["Total"] = DBNull.Value;
-			rowToAdd["FreightCost"] = DBNull.Value;
-			rowToAdd["TaxCost"] = DBNull.Value;
+			rowToAdd["IsInvoiceOrder"] = IsInvoiceOrder;
+			rowToAdd["NumItems"] = NumItems;
 
-			Validate(rowToAdd, false);
+
+			//Validate the data supplied
+			Validate(rowToAdd, true);
 
 			if (NumErrors() == 0)
 			{
@@ -1597,21 +2977,18 @@ namespace Keyholders
 
 		}
 
+		#endregion
 
-		/// <summary>
-		/// Validates data recieved by the Add or Modify Public Methods.
-		/// If any Errors are found, ErrorFound will return true, and these Errors 
-		/// are available through the ErrorMessage and ErrorFieldName methods
-		/// If any Warnings are found, WarningFound will return true, and these Warnings 
-		/// are available through the WarningMessage and WarningFieldName methods		
-		/// </summary>
-		/// <param name="valuesToValidate">Values to be Validated.</param>
-		/// <param name="newRow">Indicates whether the Row being validated 
-		/// is new or already exists in the system</param>
-		private void Validate(System.Data.DataRow valuesToValidate, bool newRow)
+		#region Validate
+
+		/// <summary>Validate</summary>
+		/// <param name="valuesToValidate">Values to be Validated</param>
+		/// <param name="newRow">Indicates whether the Row being validated is new or already exists in the system</param>
+		public void Validate(System.Data.DataRow valuesToValidate, bool newRow)
 		{
-			//TODO: Add any required Validation here
 		}
+
+		#endregion
 
 		#endregion
 
@@ -1780,496 +3157,390 @@ namespace Keyholders
 		}
 		#endregion
 
-		# region My_ Values Order
+		#region My_ Values Order
 
-		/// <summary>
-		/// <see cref="clsOrder.my_OrderId">Id</see> of 
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>OrderId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_OrderId">Id</see> 
-		/// of <see cref="clsOrder">Order</see> 
-		/// </returns>	
+		/// <returns>OrderId</returns>
 		public int my_OrderId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "OrderId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsCustomer.my_CustomerId">CustomerId</see> of 
-		/// <see cref="clsCustomer">Customer</see>
-		/// Associated with this Order</summary>
+
+		/// <summary>CustomerId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsCustomer.my_CustomerId">Id</see> 
-		/// of <see cref="clsCustomer">Customer</see> 
-		/// for this Order</returns>	
+		/// <returns>CustomerId</returns>
 		public int my_CustomerId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "CustomerId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsPerson.my_PersonId">PersonId</see> of 
-		/// <see cref="clsPerson">Person</see>
-		/// Associated with this Order</summary>
+
+		/// <summary>PersonId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsPerson.my_PersonId">Id</see> 
-		/// of <see cref="clsPerson">Person</see> 
-		/// for this Order</returns>	
+		/// <returns>PersonId</returns>
 		public int my_PersonId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "PersonId"));
 		}
-		
-		/// <summary>
-		/// <see cref="clsPaymentMethodType.my_PaymentMethodTypeId">PaymentMethodTypeId</see> of 
-		/// <see cref="clsPaymentMethodType">PaymentMethodType</see>
-		/// Associated with this Order</summary>
+
+
+		/// <summary>PaymentMethodTypeId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsPaymentMethodType.my_PaymentMethodTypeId">Id</see> 
-		/// of <see cref="clsPaymentMethodType">PaymentMethodType</see> 
-		/// for this Order</returns>	
+		/// <returns>PaymentMethodTypeId</returns>
 		public int my_PaymentMethodTypeId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "PaymentMethodTypeId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsCustomerGroup.my_CustomerGroupId">CustomerGroupId</see> of 
-		/// <see cref="clsCustomerGroup">CustomerGroup</see>
-		/// Associated with this Order</summary>
+
+		/// <summary>CustomerGroupId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsCustomerGroup.my_CustomerGroupId">Id</see> 
-		/// of <see cref="clsCustomerGroup">CustomerGroup</see> 
-		/// for this Order</returns>	
+		/// <returns>CustomerGroupId</returns>
 		public int my_CustomerGroupId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "CustomerGroupId"));
 		}
-		
-		/// <summary>
-		/// <see cref="clsOrder.my_OrderNum">Customer's Order Number</see> for this 
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+
+		/// <summary>OrderNum</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_OrderNum">Customer's Order Number</see> for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>	
+		/// <returns>OrderNum</returns>
 		public string my_OrderNum(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "OrderNum");
 		}
-		
-		/// <summary>
-		/// <see cref="clsOrder.my_CustomerType">Type</see> of Customer for this
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+
+		/// <summary>CustomerType</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_CustomerType">Type</see> of Customer for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
-		public string my_CustomerType(int rowNum)
+		/// <returns>CustomerType</returns>
+		public int my_CustomerType(int rowNum)
 		{
-			return localRecords.FieldByName(rowNum, "CustomerType");
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "CustomerType"));
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_FullName">Full Name</see> of Customer for this
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>FullName</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_FullName">Full Name</see> of Customer for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>FullName</returns>
 		public string my_FullName(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "FullName");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_Title">Person's Title</see> for this 
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>Title</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_Title">Person's Title</see> for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>	
+		/// <returns>Title</returns>
 		public string my_Title(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Title");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_FirstName">Person's First Name</see> for this 
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>FirstName</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_FirstName">Person's First Name</see> for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>	
+		/// <returns>FirstName</returns>
 		public string my_FirstName(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "FirstName");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_LastName">Person's Last Name</see> for this 
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>LastName</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_LastName">Person's Last Name</see> for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>	
+		/// <returns>LastName</returns>
 		public string my_LastName(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "LastName");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickPostalAddress">Quick Postal Address</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>QuickPostalAddress</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickPostalAddress">Quick Postal Address</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickPostalAddress</returns>
 		public string my_QuickPostalAddress(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "QuickPostalAddress");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickDaytimePhone">Quick Daytime Phone</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>QuickDaytimePhone</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickDaytimePhone">Quick Daytime Phone</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickDaytimePhone</returns>
 		public string my_QuickDaytimePhone(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "QuickDaytimePhone");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickDaytimeFax">Quick Daytime Fax</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>QuickDaytimeFax</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickDaytimeFax">Quick Daytime Fax</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickDaytimeFax</returns>
 		public string my_QuickDaytimeFax(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "QuickDaytimeFax");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickAfterHoursPhone">Quick After Hours Phone</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>QuickAfterHoursPhone</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickAfterHoursPhone">Quick After Hours Phone</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickAfterHoursPhone</returns>
 		public string my_QuickAfterHoursPhone(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "QuickAfterHoursPhone");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickAfterHoursFax">Quick After Hours Fax</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>QuickAfterHoursFax</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickAfterHoursFax">Quick After Hours Fax</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickAfterHoursFax</returns>
 		public string my_QuickAfterHoursFax(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "QuickAfterHoursFax");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickMobilePhone">Quick Mobile Phone</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>QuickMobilePhone</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickMobilePhone">Quick Mobile Phone</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickMobilePhone</returns>
 		public string my_QuickMobilePhone(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "QuickMobilePhone");
 		}
 
-		/// <summary>
-		/// <see cref="clsCountry.my_CountryId">CountryId</see> of 
-		/// <see cref="clsCountry">Country</see></summary>
-		/// <param Long="rowNum">Row number for Data</param>
-		/// <returns><see cref="clsCountry.my_CountryId">CountryId</see> 
-		/// of Associated <see cref="clsCountry">Country</see> 
-		/// for this Order</returns>
+
+		/// <summary>CountryId</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>CountryId</returns>
 		public int my_CountryId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "CountryId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_Email">Email Address</see> for
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>Email</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_Email">Email Address</see> for 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>Email</returns>
 		public string my_Email(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Email");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_OrderSubmitted">Submission Status</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>OrderSubmitted</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_OrderSubmitted">Submission Status</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>OrderSubmitted</returns>
 		public int my_OrderSubmitted(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "OrderSubmitted"));
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_OrderPaid">Paid Status</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>OrderPaid</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_OrderPaid">Paid Status</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>OrderPaid</returns>
 		public int my_OrderPaid(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "OrderPaid"));
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_OrderCreatedMechanism">Mechanism</see> by which this 
-		/// <see cref="clsOrder">Order</see> was Created
-		/// </summary>
+
+		/// <summary>OrderCreatedMechanism</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns>
-		/// <see cref="clsOrder.my_OrderCreatedMechanism">Mechanism</see> by which this 
-		/// <see cref="clsOrder">Order</see> was Created
-		/// </returns>
+		/// <returns>OrderCreatedMechanism</returns>
 		public int my_OrderCreatedMechanism(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "OrderCreatedMechanism"));
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrderStatus.my_OrderStatusId">OrderStatusId</see> of 
-		/// <see cref="clsOrderStatus">OrderStatus</see></summary>
-		/// <param Long="rowNum">Row number for Data</param>
-		/// <returns><see cref="clsOrderStatus.my_OrderStatusId">OrderStatusId</see> 
-		/// of Associated <see cref="clsOrderStatus">OrderStatus</see> 
-		/// for this Order</returns>
+		/// <summary>OrderStatusId</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>OrderStatusId</returns>
 		public int my_OrderStatusId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "OrderStatusId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_SupplierComment">Supplier's Comments</see> about
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>SupplierComment</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_SupplierComment">Supplier's Comments</see> about 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>SupplierComment</returns>
 		public string my_SupplierComment(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "SupplierComment");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateCreated">Date of Creation (Client Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>DateCreated</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateCreated">Date of Creation (Client Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateCreated</returns>
 		public string my_DateCreated(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "DateCreated");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateCreatedUtc">Date of Creation (UTC Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateCreatedUtc</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateCreatedUtc">Date of Creation (UTC Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateCreatedUtc</returns>
 		public string my_DateCreatedUtc(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "DateCreatedUtc");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateSubmitted">Date of Submission (Client Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateSubmitted</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateSubmitted">Date of Submission (Client Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateSubmitted</returns>
 		public string my_DateSubmitted(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "DateSubmitted");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateSubmittedUtc">Date of Submission (UTC Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateSubmittedUtc</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateSubmittedUtc">Date of Submission (UTC Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateSubmittedUtc</returns>
 		public string my_DateSubmittedUtc(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "DateSubmittedUtc");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateProcessed">Date of Processing (Client Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>DateProcessed</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateProcessed">Date of Processing (Client Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateProcessed</returns>
 		public string my_DateProcessed(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "DateProcessed");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateProcessedUtc">Date of Processing (UTC Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateProcessedUtc</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateProcessedUtc">Date of Processing (UTC Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateProcessedUtc</returns>
 		public string my_DateProcessedUtc(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "DateProcessedUtc");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateShipped">Date of Shipping (Client Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateShipped</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateShipped">Date of Shipping (Client Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateShipped</returns>
 		public string my_DateShipped(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "DateShipped");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateShippedUtc">Date of Shipping (UTC Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateShippedUtc</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateShippedUtc">Date of Shipping (UTC Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateShippedUtc</returns>
 		public string my_DateShippedUtc(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "DateShippedUtc");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateDue">Date of Creation (Client Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>DateDue</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateDue">Date of Creation (Client Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateDue</returns>
 		public string my_DateDue(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "DateDue");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_InvoiceRequested">Whether Tax was applied</see> to this
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>InvoiceRequested</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_InvoiceRequested">Whether Tax was applied</see> to this 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>InvoiceRequested</returns>
 		public int my_InvoiceRequested(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "InvoiceRequested"));
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateInvoiceLastPrinted">Date of Creation (Client Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateInvoiceLastPrinted</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateInvoiceLastPrinted">Date of Creation (Client Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateInvoiceLastPrinted</returns>
 		public string my_DateInvoiceLastPrinted(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "DateInvoiceLastPrinted");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_TaxAppliedToOrder">Whether Tax was applied</see> to this
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>TaxAppliedToOrder</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_TaxAppliedToOrder">Whether Tax was applied</see> to this 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
-		public int my_TaxAppliedToOrder(int rowNum)
+		/// <returns>TaxAppliedToOrder</returns>
+		public decimal my_TaxAppliedToOrder(int rowNum)
 		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "TaxAppliedToOrder"));
+			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "TaxAppliedToOrder"));
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_TaxRateAtTimeOfOrder">Tax Rate at time</see> of this
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>TaxRateAtTimeOfOrder</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_TaxRateAtTimeOfOrder">Tax Rate at time</see> of this 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>TaxRateAtTimeOfOrder</returns>
 		public decimal my_TaxRateAtTimeOfOrder(int rowNum)
 		{
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "TaxRateAtTimeOfOrder"));
 		}
 
+
+		/// <summary>Total</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>Total</returns>
+		public decimal my_Total(int rowNum)
+		{
+			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Total"));
+		}
+
+
+		/// <summary>TotalItemWeight</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>TotalItemWeight</returns>
+		public decimal my_TotalItemWeight(int rowNum)
+		{
+			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "TotalItemWeight"));
+		}
+
+
+
+		/// <summary>TotalItemFreightCost</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>TotalItemFreightCost</returns>
+		public decimal my_TotalItemFreightCost(int rowNum)
+		{
+			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "TotalItemFreightCost"));
+		}
+
+
+		/// <summary>IsInvoiceOrder</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>IsInvoiceOrder</returns>
+		public int my_IsInvoiceOrder(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "IsInvoiceOrder"));
+		}
+
+
+		/// <summary>NumItems</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>NumItems</returns>
+		public int my_NumItems(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "NumItems"));
+		}
+
+
+		#endregion
+
+		#region Calculated My_ Values Order
 
 		/// <summary>
 		/// Tax Cost of Order. Note this is negative if the system setting is to show
@@ -2315,45 +3586,6 @@ namespace Keyholders
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "FreightCost"));
 		}
 
-
-		/// <summary>
-		/// Total Cost of Order
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>Total Cost of this Order</returns>
-		public decimal my_Total(int rowNum)
-		{
-			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Total"));
-		}
-		
-		/// <summary>
-		/// <see cref="clsOrder.my_IsInvoiceOrder">Invoice Status</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_IsInvoiceOrder">Invoice Status</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
-		public int my_IsInvoiceOrder(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "IsInvoiceOrder"));
-		}
-
-		/// <summary>
-		/// Total Freight Cost of all Items in this Order
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>Total Freight Cost of all Items in this Order</returns>
-		public decimal my_TotalItemFreightCost(int rowNum)
-		{
-			decimal baseCost = Convert.ToDecimal(localRecords.FieldByName(rowNum, "TotalItemFreightCost"));
-			
-			if (priceShownIncludesLocalTaxRate)
-				return baseCost * localTaxRate;
-			else
-				return baseCost;
-		}
-
 		/// <summary>
 		/// Total Freight Cost of all Items in this Order Assuming Freight Charged per Item (Excluding Tax)
 		/// </summary>
@@ -2392,11 +3624,9 @@ namespace Keyholders
 			return baseCost;
 		}
 
-		/// <summary>
-		/// Total Cost of all Items in this Order(Excluding Tax)
-		/// </summary>
+		/// <summary>TotalItemCostExcludingTax</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns>Total Cost of all Items in this Order (Excluding Tax)</returns>
+		/// <returns>TotalItemCostExcludingTax</returns>
 		public decimal my_TotalItemCostExcludingTax(int rowNum)
 		{
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "TotalItemCost"));
@@ -2418,26 +3648,6 @@ namespace Keyholders
 					+ Convert.ToDecimal(localRecords.FieldByName(rowNum, "FreightCost"))
 					+ Convert.ToDecimal(localRecords.FieldByName(rowNum, "TaxCost"));
 
-		}
-		
-		/// <summary>
-		/// Total Weight of all Items in this Order
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>Total Weight of all Items in this Order</returns>
-		public decimal my_TotalItemWeight(int rowNum)
-		{
-			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "TotalItemWeight"));
-		}
-
-		/// <summary>
-		/// Number of Items in this Order
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>Number of Items in this Order</returns>
-		public int my_NumItems(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "NumItems"));
 		}
 
 
@@ -2518,9 +3728,9 @@ namespace Keyholders
 		/// <returns><see cref="clsCustomer.my_CustomerType">Type</see> of 
 		/// <see cref="clsCustomer">Customer</see> 
 		/// </returns>
-		public string my_Customer_CustomerType(int rowNum)
+		public int my_Customer_CustomerType(int rowNum)
 		{
-			return localRecords.FieldByName(rowNum, "Customer_CustomerType");
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Customer_CustomerType"));
 		}
 
 		

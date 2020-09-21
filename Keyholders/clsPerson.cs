@@ -1640,9 +1640,9 @@ namespace Keyholders
 		/// <returns><see cref="clsCustomer.my_CustomerType">Type</see> of 
 		/// <see cref="clsCustomer">Customer</see> 
 		/// </returns>
-		public string my_Customer_CustomerType(int rowNum)
+		public int my_Customer_CustomerType(int rowNum)
 		{
-			return localRecords.FieldByName(rowNum, "Customer_CustomerType");
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Customer_CustomerType"));
 		}
 
 		

@@ -20,11 +20,9 @@ namespace Importer
 		[STAThread]
 		static void Main(string[] args)
 		{
-			string Dev1Connection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=Dev4;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
-//			string Dev1Connection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=Dev1;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
-			//			string Dev2Connection = @"DRIVER={SQL Server};SERVER=Dev2;DATABASE=Freedom1;UID=sa;PWD=tandori;";
-			//			string FREEDOMConnection = @"DRIVER={SQL Server};SERVER=localhost;DATABASE=Freedom;UID=welman;PWD=!WebFred!1;";
-			string thisConnection = Dev1Connection;
+			string Dev64Connection = "DRIVER={mySql ODBC 5.3 Unicode Driver};SERVER=Dev64;port=3306;UID=graham;PASSWORD=1fuckyou;DATABASE=kdl_mod3";
+
+			string thisConnection = Dev64Connection;
 			string AlertusDbFileName = "AlertusDB";
 
 			string thisFolder = Directory.GetCurrentDirectory() + @"\";
@@ -55,7 +53,12 @@ namespace Importer
 
 				for(int counter = 0; counter < 13; counter++)
 				{
-					thisImportData.DoCorrespondence(new DateTime(currentYear, currentMonth, 1));
+
+					int SeedInvoiceNumber = 1;
+					string LogFolder = @"W:\logs\";
+					string fileToExportTo = @"export.csv";
+
+					thisImportData.DoCorrespondence(new DateTime(currentYear, currentMonth, 1), SeedInvoiceNumber, LogFolder, fileToExportTo);
 					currentMonth++;
 					if (currentMonth > 12)
 					{
@@ -63,20 +66,6 @@ namespace Importer
 						currentMonth = currentMonth % 12;
 					}
 				}
-
-
-//				thisImportData.DoCorrespondence(new DateTime(2010, 10, 1));
-//				thisImportData.DoCorrespondence(new DateTime(2010, 11, 1));
-//				thisImportData.DoCorrespondence(new DateTime(2010, 12, 1));
-//				thisImportData.DoCorrespondence(new DateTime(2011, 1, 1));
-//				thisImportData.DoCorrespondence(new DateTime(2011, 2, 1));
-//				thisImportData.DoCorrespondence(new DateTime(2011, 3, 1));
-//				thisImportData.DoCorrespondence(new DateTime(2011, 4, 1));
-//				thisImportData.DoCorrespondence(new DateTime(2011, 5, 1));
-//				thisImportData.DoCorrespondence(new DateTime(2011, 6, 1));
-//				thisImportData.DoCorrespondence(new DateTime(2011, 7, 1));
-//				thisImportData.DoCorrespondence(new DateTime(2011, 8, 1));
-				//				thisImportData.DoCorrespondence(new DateTime(2011, 10, 1));
 			}
 			catch (System.Exception e)
 			{

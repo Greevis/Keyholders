@@ -1,64 +1,93 @@
+using Resources;
 using System;
 using System.Runtime.InteropServices;
 using System.Data;
-using Resources;
 using System.Data.Odbc;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
+using System.Collections.Generic;
+using System.IO;
+using System.Collections;
 
 namespace Keyholders
 {
-	/// <summary>
-	/// clsItem deals with everything to do with data about Items.
-	/// </summary>
-	
+	/// <summary>clsItem deals with everything to do with data about Items</summary>
 	[GuidAttribute("677204AF-4B26-4978-9FFA-04BD007277A8")]
 	public class clsItem : clsKeyBase
 	{
-		# region Initialisation
-		/// <summary>
-		/// Constructor for clsItem
-		/// </summary>
+		#region Initialisation
+
+		#region Constructors
+
+		/// <summary>Constructor for clsItem</summary>
 		public clsItem() : base("Item")
 		{
 		}
 
-		/// <summary>
-		/// Constructor for clsItem; Allows Calling of 'Connect' Function to be skipped
-		/// </summary>
-		/// <param name="typeOfDb">Type of Database, form the enumeration
-		/// <see cref="clsRecordHandler.databaseType">databaseType</see>
-		/// </param>
+		/// <summary>Constructor for clsItem; Allows Calling of 'Connect' Function to be skipped</summary>
+		/// <param name="typeOfDb">Type of Database, form the enumeration <see cref="clsRecordHandler.databaseType">databaseType</see></param>
 		/// <param name="odbcConnection">Open Database Connection</param>
-		public clsItem(clsRecordHandler.databaseType typeOfDb, 
+		public clsItem(clsRecordHandler.databaseType typeOfDb,
 			OdbcConnection odbcConnection) : base("Item")
 		{
 			Connect(typeOfDb, odbcConnection);
 		}
 
-		/// <summary>
-		/// Part of the Query that Pertains to Product Information
-		/// </summary>
+		#endregion
+
+		#region ConnectToForeignClasses
+
+		/// <summary>Connect to Foreign Key classes within this class</summary>
+		/// <param name="typeOfDb">Type of Database, form the enumeration <see cref="clsRecordHandler.databaseType">databaseType</see></param>
+		/// <param name="odbcConnection">An already open ODBC database connection</param>
+		public override void ConnectToForeignClasses(
+			clsRecordHandler.databaseType typeOfDb,
+			OdbcConnection odbcConnection)
+		{
+			GetGeneralSettings();
+		}
+
+		#endregion
+
+		#region LoadMainQuery
+
+		#region QueryPartSets
+
+		/// <summary>bareQueriesWithOrder</summary>
+		public clsQueryPart[] bareQueriesWithOrder;
+
+		#endregion
+
+		#region QueryParts
+
+		/// <summary>Main2Q</summary>
+		public clsQueryPart Main2Q = new clsQueryPart();
+
+		/// <summary>ProductQ</summary>
 		public clsQueryPart ProductQ = new clsQueryPart();
 
-		/// <summary>
-		/// Part of the Query that Pertains to Premise Information
-		/// </summary>
+		/// <summary>PremiseQ</summary>
 		public clsQueryPart PremiseQ = new clsQueryPart();
 
-		/// <summary>
-		/// Part of the Query that Pertains to Customer Information
-		/// </summary>
+		/// <summary>CustomerQ</summary>
 		public clsQueryPart CustomerQ = new clsQueryPart();
 
-		/// <summary>
-		/// Part of the Query that Pertains to Order Information
-		/// </summary>
+		/// <summary>Customer2Q</summary>
+		public clsQueryPart Customer2Q = new clsQueryPart();
+
+		/// <summary>OrderQ</summary>
 		public clsQueryPart OrderQ = new clsQueryPart();
 
-		/// <summary>
-		/// Loads the SQL for the 'main' query for the Get Functions
-		/// </summary>
+		#endregion
+
+		#region LoadMainQuery
+
+		/// <summary>Loads the SQL for query types for the GetBys</summary>
 		public override void LoadMainQuery()
 		{
+			MainQ = ItemQueryPart();
+
 			PremiseQ = PremiseQueryPart();
 			PremiseQ.FromTables.Clear();
 			PremiseQ.Joins.Clear();
@@ -69,136 +98,154 @@ namespace Keyholders
 
 			OrderQ = OrderQueryPart();
 
+			bareQueriesWithOrder = new clsQueryPart[]
+			{
+				MainQ,
+				OrderQ
+			};
+
+			Main2Q = ItemQueryPart();
+			Main2Q.FromTables.Clear();
+			Main2Q.AddFromTable(thisTable + " left outer join tblProduct on tblItem.ProductId = tblProduct.ProductId"
+			 + " left outer join tblPremise on tblItem.PremiseId = tblPremise.PremiseId");
+
+
+
 			CustomerQ = CustomerQueryPart();
 			CustomerQ.Joins.Clear();
 			CustomerQ.AddJoin("tblPremise.CustomerId = tblCustomer.CustomerId");
 
-
-			MainQ.AddSelectColumn("tblItem.ItemId");
-			MainQ.AddSelectColumn("tblItem.OrderId");
-			MainQ.AddSelectColumn("tblItem.ProductId");
-			MainQ.AddSelectColumn("tblItem.PremiseId");
-			MainQ.AddSelectColumn("tblItem.Quantity");
-			MainQ.AddSelectColumn("tblItem.ItemName");
-			MainQ.AddSelectColumn("tblItem.ItemCode");
-			MainQ.AddSelectColumn("tblItem.ShortDescription");
-			MainQ.AddSelectColumn("tblItem.LongDescription");
-			MainQ.AddSelectColumn("tblItem.Cost");
-			MainQ.AddSelectColumn("tblItem.Weight");
-			MainQ.AddSelectColumn("tblItem.MaxKeyholdersPerPremise");
-			MainQ.AddSelectColumn("tblItem.MaxAssetRegisterAssets");
-			MainQ.AddSelectColumn("tblItem.MaxAssetRegisterStorage");
-			MainQ.AddSelectColumn("tblItem.MaxDocumentSafeDocuments");
-			MainQ.AddSelectColumn("tblItem.MaxDocumentSafeStorage");
-			MainQ.AddSelectColumn("tblItem.RequiresPremiseForActivation");
-			MainQ.AddSelectColumn("tblItem.DateActivation");
-			MainQ.AddSelectColumn("tblItem.DateActivationUtc");
-			MainQ.AddSelectColumn("tblItem.DateExpiry");
-			MainQ.AddSelectColumn("tblItem.DateExpiryUtc");
-			MainQ.AddSelectColumn("tblItem.DurationNumUnits");
-			MainQ.AddSelectColumn("tblItem.DurationUnitId");
-			MainQ.AddSelectColumn("tblItem.FreightCost");
-
-//			MainQ.AddSelectColumn(MaxAllowable + " as MaxAllowable");
-
-			MainQ.AddFromTable(thisTable + " left outer join tblProduct on tblItem.ProductId = tblProduct.ProductId"
-			 + " left outer join tblPremise on tblItem.PremiseId = tblPremise.PremiseId");
+			//MainQ.AddSelectColumn("tblItem.ItemId");
+			//MainQ.AddSelectColumn("tblItem.OrderId");
+			//MainQ.AddSelectColumn("tblItem.ProductId");
+			//MainQ.AddSelectColumn("tblItem.PremiseId");
+			//MainQ.AddSelectColumn("tblItem.Quantity");
+			//MainQ.AddSelectColumn("tblItem.ItemName");
+			//MainQ.AddSelectColumn("tblItem.ItemCode");
+			//MainQ.AddSelectColumn("tblItem.ShortDescription");
+			//MainQ.AddSelectColumn("tblItem.LongDescription");
+			//MainQ.AddSelectColumn("tblItem.Cost");
+			//MainQ.AddSelectColumn("tblItem.Weight");
+			//MainQ.AddSelectColumn("tblItem.MaxKeyholdersPerPremise");
+			//MainQ.AddSelectColumn("tblItem.MaxAssetRegisterAssets");
+			//MainQ.AddSelectColumn("tblItem.MaxAssetRegisterStorage");
+			//MainQ.AddSelectColumn("tblItem.MaxDocumentSafeDocuments");
+			//MainQ.AddSelectColumn("tblItem.MaxDocumentSafeStorage");
+			//MainQ.AddSelectColumn("tblItem.RequiresPremiseForActivation");
+			//MainQ.AddSelectColumn("tblItem.DateActivation");
+			//MainQ.AddSelectColumn("tblItem.DateActivationUtc");
+			//MainQ.AddSelectColumn("tblItem.DateExpiry");
+			//MainQ.AddSelectColumn("tblItem.DateExpiryUtc");
+			//MainQ.AddSelectColumn("tblItem.DurationNumUnits");
+			//MainQ.AddSelectColumn("tblItem.DurationUnitId");
+			//MainQ.AddSelectColumn("tblItem.FreightCost");
+			//MainQ.AddFromTable(thisTable + " left outer join tblProduct on tblItem.ProductId = tblProduct.ProductId"
+			// + " left outer join tblPremise on tblItem.PremiseId = tblPremise.PremiseId");
 
 			clsQueryBuilder QB = new clsQueryBuilder();
-			baseQueries = new clsQueryPart[5];
-			
-			baseQueries[0] = MainQ;
-			baseQueries[1] = PremiseQ;
-			baseQueries[2] = ProductQ;
-			baseQueries[3] = OrderQ;
-			baseQueries[4] = CustomerQ;
+
+
+			baseQueries = new clsQueryPart[]
+			{
+				Main2Q,
+				PremiseQ,
+				ProductQ,
+				OrderQ,
+				CustomerQ
+			};
+
+			//baseQueries = new clsQueryPart[5];
+
+			//baseQueries[0] = MainQ;
+			//baseQueries[1] = PremiseQ;
+			//baseQueries[2] = ProductQ;
+			//baseQueries[3] = OrderQ;
+			//baseQueries[4] = CustomerQ;
 
 			mainSqlQuery = QB.BuildSqlStatement(baseQueries);
 			orderBySqlQuery = "Order By tblItem.ItemId" + crLf;
 
 		}
 
+		#endregion
 
-		/// <summary>
-		/// Initialise (or reinitialise) everything for clsItem
-		/// </summary>
+		#region Initialise
+
+		/// <summary>Initialise (or reinitialise) everything for this class</summary>
 		public override void Initialise()
 		{
-			
+
 			//Initialise the data tables with Column Names
 
 			newDataToAdd = new DataTable(thisTable);
+
 			newDataToAdd.Columns.Add("OrderId", System.Type.GetType("System.Int32"));
 			newDataToAdd.Columns.Add("ProductId", System.Type.GetType("System.Int32"));
 			newDataToAdd.Columns.Add("PremiseId", System.Type.GetType("System.Int32"));
+
 			newDataToAdd.Columns.Add("Quantity", System.Type.GetType("System.Decimal"));
+
 			newDataToAdd.Columns.Add("ItemName", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("ItemCode", System.Type.GetType("System.String"));
+
 			newDataToAdd.Columns.Add("ShortDescription", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("LongDescription", System.Type.GetType("System.String"));
+
 			newDataToAdd.Columns.Add("Cost", System.Type.GetType("System.Decimal"));
 			newDataToAdd.Columns.Add("Weight", System.Type.GetType("System.Decimal"));
+
 			newDataToAdd.Columns.Add("MaxKeyholdersPerPremise", System.Type.GetType("System.Int32"));
 			newDataToAdd.Columns.Add("MaxAssetRegisterAssets", System.Type.GetType("System.Int32"));
 			newDataToAdd.Columns.Add("MaxAssetRegisterStorage", System.Type.GetType("System.Int32"));
 			newDataToAdd.Columns.Add("MaxDocumentSafeDocuments", System.Type.GetType("System.Int32"));
 			newDataToAdd.Columns.Add("MaxDocumentSafeStorage", System.Type.GetType("System.Int32"));
 			newDataToAdd.Columns.Add("RequiresPremiseForActivation", System.Type.GetType("System.Int32"));
+
 			newDataToAdd.Columns.Add("DateActivation", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("DateActivationUtc", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("DateExpiry", System.Type.GetType("System.String"));
 			newDataToAdd.Columns.Add("DateExpiryUtc", System.Type.GetType("System.String"));
-			newDataToAdd.Columns.Add("DurationNumUnits", System.Type.GetType("System.Decimal"));
+
+			newDataToAdd.Columns.Add("DurationNumUnits", System.Type.GetType("System.Double"));
+
 			newDataToAdd.Columns.Add("DurationUnitId", System.Type.GetType("System.Int32"));
+
 			newDataToAdd.Columns.Add("FreightCost", System.Type.GetType("System.Decimal"));
 
-			dataToBeModified = new DataTable(thisTable);
-			dataToBeModified.Columns.Add(thisPk, System.Type.GetType("System.Int32"));
 
-			dataToBeModified.PrimaryKey = new System.Data.DataColumn[] 
+			dataToBeModified = new DataTable(thisTable);
+			dataToBeModified.Columns.Add(thisPk, System.Type.GetType("System.Int64"));
+
+			dataToBeModified.PrimaryKey = new System.Data.DataColumn[]
 				{dataToBeModified.Columns[thisPk]};
 
 			for (int colCounter = 0; colCounter < newDataToAdd.Columns.Count; colCounter++)
 				dataToBeModified.Columns.Add(newDataToAdd.Columns[colCounter].ColumnName, newDataToAdd.Columns[colCounter].DataType);
 
-
 			InitialiseWarningAndErrorTables();
 			InitialiseAttributeChangeDataTable();
-		}
-	
-		/// <summary>
-		/// Connect to Foreign Key classes within this class
-		/// </summary>
-		/// <param name="typeOfDb">Type of Database, form the enumeration
-		/// <see cref="clsRecordHandler.databaseType">databaseType</see>
-		/// </param>
-		/// <param name="odbcConnection">An already open ODBC database connection</param>
-		public override void ConnectToForeignClasses(
-			clsRecordHandler.databaseType typeOfDb, 
-			OdbcConnection odbcConnection)
-		{
-			noteChanges = false;
-			//Need to get the tax rate so that we can return the price with tax
-			GetGeneralSettings();
 		}
 
 		#endregion
 
-		# region Get Methods
+		#endregion
 
-		/// <summary>
-		/// Initialises an internal list of all Items
-		/// </summary>
+		#endregion
+
+		#region All GetBy Methods
+
+		#region General GetBy Methods
+
+		#region GetAll
+
+		/// <summary>GetAll for this class</summary>
 		/// <returns>Number of resulting records</returns>
 		public int GetAll()
 		{
 			clsQueryBuilder QB = new clsQueryBuilder();
-			clsQueryPart[] queries = new clsQueryPart[1];
-			
-			queries[0] = MainQ;
+			clsQueryPart[] queries = baseQueries;
 
-			thisSqlQuery = QB.BuildSqlStatement(
-				queries, OrderByColumns);
+			thisSqlQuery = QB.BuildSqlStatement(queries, OrderByColumns);
 
 			//Ordering
 			if (OrderByColumns.Count == 0)
@@ -207,24 +254,27 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
-		/// <summary>
-		/// Gets an Item by ItemId
-		/// </summary>
-		/// <param name="ItemId">Id of Item to retrieve</param>
+
+		#endregion
+
+		#region GetByItemId
+
+		/// <summary>Get a Item by ItemId</summary>
+		/// <param name="ItemId">ItemId</param>
 		/// <returns>Number of resulting records</returns>
 		public int GetByItemId(int ItemId)
 		{
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 
-			string condition = "(Select * from " + thisTable 
-				+ " Where " + thisTable + "." + thisPk + " = "
-				+ ItemId.ToString() + crLf;
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable + crLf
+				+ " Where " + thisTable + ".ItemId = " + ItemId.ToString() + crLf
+				+ ") " + thisTable
+				);
 
-			condition += ") " + thisTable;
-
-			thisSqlQuery = QB.BuildSqlStatement(queries, OrderByColumns, 
-				condition,
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
 				thisTable
 				);
 
@@ -235,27 +285,31 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
-		/// <summary>
-		/// Gets Items by OrderId
-		/// </summary>
-		/// <param name="OrderId">Id of Order to retrieve Items for</param>
+
+		#endregion
+
+		#endregion
+
+		#region GetBy SingleId and Type Methods
+
+		#region GetByOrderId
+
+		/// <summary>Gets Items by OrderId</summary>
+		/// <param name="OrderId">OrderId</param>
 		/// <returns>Number of resulting records</returns>
 		public int GetByOrderId(int OrderId)
 		{
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 
-			string condition = "(Select * from " + thisTable + crLf;	
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".OrderId = " + OrderId.ToString() + crLf
+				+ ") " + thisTable
+				);
 
-			//Additional Condition
-			condition += "Where tblItem.OrderId = " 
-				+ OrderId.ToString() + crLf;
-
-			condition += ") " + thisTable;
-
-			thisSqlQuery = QB.BuildSqlStatement(
-				queries, OrderByColumns, 
-				condition,
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
 				thisTable
 				);
 
@@ -266,93 +320,30 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
-		/// <summary>
-		/// Gets all Items in Unsubmitted Orders
-		/// </summary>
+
+		#endregion
+
+		#region GetByProductId
+
+		/// <summary>Gets Items by ProductId</summary>
+		/// <param name="ProductId">ProductId</param>
 		/// <returns>Number of resulting records</returns>
-		public int GetUnsubmittedOrders()
+		public int GetByProductId(int ProductId)
 		{
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 
-			string condition = "(Select * from tblOrder" + crLf;	
-
-
-			condition += "Where tblOrder.OrderSubmitted = 0" + crLf;
-
-			condition += ") tblOrder" ;
-
-			OrderByColumns.Clear();
-
-			thisSqlQuery = QB.BuildSqlStatement(
-				queries, 
-				OrderByColumns, 
-				condition,
-				"tblOrder"
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".ProductId = " + ProductId.ToString() + crLf
+				+ ") " + thisTable
 				);
 
-
-			//Ordering
-//			if (OrderByColumns.Count == 0)
-//				thisSqlQuery += orderBySqlQuery;
-			thisSqlQuery += " Order by convert(tblCustomer.AccountNumber, signed)";
-
-			return localRecords.GetRecords(thisSqlQuery);
-		}
-
-
-		/// <summary>
-		/// Gets Items by CustomerId
-		/// </summary>
-		/// <param name="CustomerId">Id of Customer to retrieve Items for</param>
-		/// <returns>Number of resulting records</returns>
-		public int GetByCustomerId(int CustomerId)
-		{
-			clsQueryBuilder QB = new clsQueryBuilder();
-			clsQueryPart[] queries = baseQueries;
-
-			string condition = "(Select * from " + thisTable + crLf;	
-
-			condition += "Where tblItem.CustomerId = " 
-				+ CustomerId.ToString() + crLf;
-
-			condition += ") " + thisTable;
-
-			thisSqlQuery = QB.BuildSqlStatement(
-				queries, OrderByColumns, 
-				condition,
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
 				thisTable
 				);
 
-			//Customering
-			if (OrderByColumns.Count == 0)
-				thisSqlQuery += orderBySqlQuery;
-
-			return localRecords.GetRecords(thisSqlQuery);
-		}
-
-		/// <summary>
-		/// Gets Items by PersonId
-		/// </summary>
-		/// <param name="PersonId">Id of Person to retrieve Items for</param>
-		/// <returns>Number of resulting records</returns>
-		public int GetByPersonId(int PersonId)
-		{
-			clsQueryBuilder QB = new clsQueryBuilder();
-			clsQueryPart[] queries = baseQueries;
-
-			string condition = "(Select * from " + thisTable + crLf
-				+ "Where tblItem.PersonId = " + PersonId.ToString() + crLf
-				;	
-
-
-			condition += ") " + thisTable;
-
-			thisSqlQuery = QB.BuildSqlStatement(
-				queries, OrderByColumns, 
-				condition,
-				thisTable
-				);
 			//Ordering
 			if (OrderByColumns.Count == 0)
 				thisSqlQuery += orderBySqlQuery;
@@ -361,25 +352,26 @@ namespace Keyholders
 		}
 
 
-		/// <summary>
-		/// Gets Items by PremiseId
-		/// </summary>
-		/// <param name="PremiseId">Id of Premise to retrieve Items for</param>
+		#endregion
+
+		#region GetByPremiseId
+
+		/// <summary>Gets Items by PremiseId</summary>
+		/// <param name="PremiseId">PremiseId</param>
 		/// <returns>Number of resulting records</returns>
 		public int GetByPremiseId(int PremiseId)
 		{
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 
-			string condition = "(Select * from " + thisTable + crLf
-				+ "Where tblItem.PremiseId = " 
-				+ PremiseId.ToString();
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".PremiseId = " + PremiseId.ToString() + crLf
+				+ ") " + thisTable
+				);
 
-			condition += ") " + thisTable;
-
-			thisSqlQuery = QB.BuildSqlStatement(
-				queries, OrderByColumns, 
-				condition,
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
 				thisTable
 				);
 
@@ -390,9 +382,298 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
-		/// <summary>
-		/// Gets Items by Quantity
-		/// </summary>
+
+		#endregion
+
+		#region GetByMaxKeyholdersPerPremise
+
+		/// <summary>Gets Items by MaxKeyholdersPerPremise</summary>
+		/// <param name="MaxKeyholdersPerPremise">MaxKeyholdersPerPremise</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByMaxKeyholdersPerPremise(int MaxKeyholdersPerPremise)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".MaxKeyholdersPerPremise = " + MaxKeyholdersPerPremise.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByMaxAssetRegisterAssets
+
+		/// <summary>Gets Items by MaxAssetRegisterAssets</summary>
+		/// <param name="MaxAssetRegisterAssets">MaxAssetRegisterAssets</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByMaxAssetRegisterAssets(int MaxAssetRegisterAssets)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".MaxAssetRegisterAssets = " + MaxAssetRegisterAssets.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByMaxAssetRegisterStorage
+
+		/// <summary>Gets Items by MaxAssetRegisterStorage</summary>
+		/// <param name="MaxAssetRegisterStorage">MaxAssetRegisterStorage</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByMaxAssetRegisterStorage(int MaxAssetRegisterStorage)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".MaxAssetRegisterStorage = " + MaxAssetRegisterStorage.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByMaxDocumentSafeDocuments
+
+		/// <summary>Gets Items by MaxDocumentSafeDocuments</summary>
+		/// <param name="MaxDocumentSafeDocuments">MaxDocumentSafeDocuments</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByMaxDocumentSafeDocuments(int MaxDocumentSafeDocuments)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".MaxDocumentSafeDocuments = " + MaxDocumentSafeDocuments.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByMaxDocumentSafeStorage
+
+		/// <summary>Gets Items by MaxDocumentSafeStorage</summary>
+		/// <param name="MaxDocumentSafeStorage">MaxDocumentSafeStorage</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByMaxDocumentSafeStorage(int MaxDocumentSafeStorage)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".MaxDocumentSafeStorage = " + MaxDocumentSafeStorage.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByRequiresPremiseForActivation
+
+		/// <summary>Gets Items by RequiresPremiseForActivation</summary>
+		/// <param name="RequiresPremiseForActivation">RequiresPremiseForActivation</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByRequiresPremiseForActivation(int RequiresPremiseForActivation)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".RequiresPremiseForActivation = " + RequiresPremiseForActivation.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#region GetByDurationUnitId
+
+		/// <summary>Gets Items by DurationUnitId</summary>
+		/// <param name="DurationUnitId">DurationUnitId</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByDurationUnitId(int DurationUnitId)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable
+				+ " Where " + thisTable + ".DurationUnitId = " + DurationUnitId.ToString() + crLf
+				+ ") " + thisTable
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+
+		#endregion
+
+		#endregion
+
+		#region Other GetBy Methods
+
+
+
+		#region GetByOrderSubmittedOrderCreatedMechanism
+
+		/// <summary>GetByOrderSubmittedOrderCreatedMechanism</summary>
+		/// <param name="OrderSubmitted">Filter for orders that have been paid for or not</param>
+		/// <param name="OrderCreatedMechanism">Id of Customer</param>
+		/// <returns>Number of resulting records</returns>
+		public int GetByOrderSubmittedOrderCreatedMechanism(int OrderSubmitted, int OrderCreatedMechanism)
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = bareQueriesWithOrder;
+
+			string thisTable2 = "tblOrder";
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable2
+				+ " Where " + thisTable2 + ".OrderSubmitted = " + OrderSubmitted.ToString() + crLf
+				+ "		And " + thisTable2 + ".OrderCreatedMechanism = " + OrderCreatedMechanism.ToString() + crLf
+				+ ") " + thisTable2
+				);
+
+			thisSqlQuery = QB.BuildSqlStatement(
+				queries,
+				OrderByColumns,
+				condition.ToString(),
+				thisTable2
+				);
+
+			//Ordering
+			if (OrderByColumns.Count == 0)
+				thisSqlQuery += orderBySqlQuery;
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+		#endregion
+
+		#region GetUnsubmittedOrders
+
+		/// <summary>GetUnsubmittedOrders</summary>
+		/// <returns>Number of resulting records</returns>
+		public int GetUnsubmittedOrders()
+		{
+			clsQueryBuilder QB = new clsQueryBuilder();
+			clsQueryPart[] queries = baseQueries;
+
+			StringBuilder condition = new StringBuilder("(Select * from tblOrder" + crLf
+				+ "Where " + thisTable + ".OrderSubmitted = 0" + crLf
+				+ ") " + thisTable + crLf);
+
+			thisSqlQuery = QB.BuildSqlStatement(
+				queries,
+				new ArrayList(),
+				condition.ToString(),
+				thisTable
+				);
+
+			//Ordering
+			thisSqlQuery += " Order by convert(tblCustomer.AccountNumber, signed)";
+
+			return localRecords.GetRecords(thisSqlQuery);
+		}
+
+		#endregion
+
+		#region GetByQuantity
+
+		/// <summary>GetByQuantity</summary>
 		/// <param name="Quantity">Order Quantity to retrieve Items for</param>
 		/// <returns>Number of resulting records</returns>
 		public int GetByQuantity(decimal Quantity)
@@ -401,13 +682,13 @@ namespace Keyholders
 			clsQueryPart[] queries = baseQueries;
 
 			string condition = "(Select * from " + thisTable + crLf
-				+ "Where tblItem.Quantity = " 
+				+ "Where tblItem.Quantity = "
 				+ Quantity.ToString();
 
 			condition += ") " + thisTable;
 
 			thisSqlQuery = QB.BuildSqlStatement(
-				queries, OrderByColumns, 
+				queries, OrderByColumns,
 				condition,
 				thisTable
 				);
@@ -419,10 +700,11 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
+		#endregion
 
-		/// <summary>
-		/// Gets 'Problem Items' for an order
-		/// </summary>
+		#region GetProblemItems
+
+		/// <summary>GetProblemItems </summary>
 		/// <param name="OrderId">Id of Order to retrieve Items for</param>
 		/// <returns>Number of resulting records</returns>
 		public int GetProblemItems(int OrderId)
@@ -439,7 +721,7 @@ namespace Keyholders
 			condition += ") " + thisTable;
 
 			thisSqlQuery = QB.BuildSqlStatement(
-				queries, OrderByColumns, 
+				queries, OrderByColumns,
 				condition,
 				thisTable
 				);
@@ -450,10 +732,12 @@ namespace Keyholders
 
 			return localRecords.GetRecords(thisSqlQuery);
 		}
-		
-		/// <summary>
-		/// Gets Items by OrderId
-		/// </summary>
+
+		#endregion
+
+		#region GetByOrderIdProductNull
+
+		/// <summary>GetByOrderIdProductNull</summary>
 		/// <param name="OrderId">Id of Order to retrieve Items for</param>
 		/// <param name="ProductNull">Whether the to include ProductIds which are null or those which are not</param>
 		/// <returns>Number of resulting records</returns>
@@ -474,7 +758,7 @@ namespace Keyholders
 			condition += ") " + thisTable;
 
 			thisSqlQuery = QB.BuildSqlStatement(
-				queries, OrderByColumns, 
+				queries, OrderByColumns,
 				condition,
 				thisTable
 				);
@@ -487,9 +771,11 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
-		/// <summary>
-		/// Gets Items by OrderId and ProductId
-		/// </summary>
+		#endregion
+
+		#region GetByOrderIdProductId
+
+		/// <summary>GetByOrderIdProductId</summary>
 		/// <param name="OrderId">Id of Order to retrieve Items for</param>
 		/// <param name="ProductId">Id of Product to find</param>
 		/// <returns>Number of resulting records</returns>
@@ -498,19 +784,19 @@ namespace Keyholders
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 
-			string condition = "(Select * from " + thisTable + crLf
-				+ "Where tblItem.OrderId = " + OrderId.ToString();
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable + crLf
+				+ "Where " + thisTable + ".OrderId = " + OrderId.ToString());
 
 			if (ProductId == 0)
-				condition += " And tblItem.ProductId is NULL";
+				condition.Append(" And " + thisTable + ".ProductId is NULL");
 			else
-				condition += " And tblItem.ProductId = " + ProductId.ToString();
+				condition.Append(" And " + thisTable + ".ProductId = " + ProductId.ToString());
 
-			condition += ") " + thisTable;
+			condition.Append(") " + thisTable);
 
 			thisSqlQuery = QB.BuildSqlStatement(
-				queries, OrderByColumns, 
-				condition,
+				queries, OrderByColumns,
+				condition.ToString(),
 				thisTable
 				);
 
@@ -521,9 +807,11 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
-		/// <summary>
-		/// Gets Items by OrderId and PremiseId
-		/// </summary>
+		#endregion
+
+		#region GetByOrderIdPremiseId
+
+		/// <summary>GetByOrderIdPremiseId</summary>
 		/// <param name="OrderId">Id of Order to retrieve Items for</param>
 		/// <param name="PremiseId">Id of Premise to find</param>
 		/// <returns>Number of resulting records</returns>
@@ -532,19 +820,19 @@ namespace Keyholders
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 
-			string condition = "(Select * from " + thisTable + crLf
-				+ "Where tblItem.OrderId = " + OrderId.ToString();
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable + crLf
+				+ "Where " + thisTable + ".OrderId = " + OrderId.ToString());
 
 			if (PremiseId == 0)
-				condition += " And tblItem.PremiseId is NULL";
+				condition.Append(" And " + thisTable + ".PremiseId is NULL");
 			else
-				condition += " And tblItem.PremiseId = " + PremiseId.ToString();
+				condition.Append(" And " + thisTable + ".PremiseId = " + PremiseId.ToString());
 
-			condition += ") " + thisTable;
+			condition.Append(") " + thisTable);
 
 			thisSqlQuery = QB.BuildSqlStatement(
-				queries, OrderByColumns, 
-				condition,
+				queries, OrderByColumns,
+				condition.ToString(),
 				thisTable
 				);
 
@@ -559,9 +847,7 @@ namespace Keyholders
 
 		#region GetByPremiseIdOrderDateCreated
 
-		/// <summary>
-		/// Gets Items by PremiseId and Date Created
-		/// </summary>
+		/// <summary>GetByPremiseIdOrderDateCreated</summary>
 		/// <param name="PremiseId">Id of Premise to retrieve Items for</param>
 		/// <param name="Day">OrderDateCreated Day</param>
 		/// <param name="Month">OrderDateCreated Month</param>
@@ -577,9 +863,9 @@ namespace Keyholders
 				+ "Where tblItem.PremiseId = " + PremiseId.ToString()
 				;
 			condition1 += ") " + thisTable;
- 
 
-			string condition2 = "(Select * From tblOrder" + crLf;	
+
+			string condition2 = "(Select * From tblOrder" + crLf;
 
 			//Additional Condition
 			condition2 += "Where Day(tblOrder.DateCreated) = " + Day.ToString()
@@ -597,7 +883,7 @@ namespace Keyholders
 			thisConditions[1].condition = condition2;
 			thisConditions[1].table = "tblOrder";
 
-			thisSqlQuery = QB.BuildSqlStatement(queries, 
+			thisSqlQuery = QB.BuildSqlStatement(queries,
 				OrderByColumns,
 				thisConditions
 				);
@@ -609,7 +895,9 @@ namespace Keyholders
 			return localRecords.GetRecords(thisSqlQuery);
 		}
 
+		#endregion
 
+		#endregion
 
 		#endregion
 
@@ -630,7 +918,7 @@ namespace Keyholders
 
 			//Reinitialise the Error and Warning Count
 			ResetWarningAndErrorTables();
-			
+
 			System.Data.DataRow rowToAdd = newDataToAdd.NewRow();
 
 			rowToAdd["ProductId"] = DBNull.Value;
@@ -690,7 +978,7 @@ namespace Keyholders
 		#endregion
 
 		#region PostponeOrCancel
-		
+
 		/// <summary>
 		/// Postpones/Cancels Renewal Orders
 		/// </summary>
@@ -703,19 +991,19 @@ namespace Keyholders
 
 			int PremiseId = thisItem.my_PremiseId(0);
 			int CustomerId = thisItem.my_Order_CustomerId(0);
-			
+
 			Delete(ItemId);
 			clsOrder thisOrder = new clsOrder(thisDbType, localRecords.dbConnection);
 			thisOrder.DeleteUnsubmittedOrdersWithNoItems();
-			
-			if(PremiseId > 0)
+
+			if (PremiseId > 0)
 			{
 				clsPremise thisPremise = new clsPremise(thisDbType, localRecords.dbConnection);
 				thisPremise.SetAttribute(PremiseId, "InvoiceRequired", "0");
 				thisPremise.SetAttribute(PremiseId, "CopyOfInvoiceRequired", "0");
 
-				if(Postpone == 0 && CustomerId != 0)
-					thisPremise.KillRenewalOrder(PremiseId,CustomerId );
+				if (Postpone == 0 && CustomerId != 0)
+					thisPremise.KillRenewalOrder(PremiseId, CustomerId);
 
 				thisPremise.Save();
 			}
@@ -740,15 +1028,13 @@ namespace Keyholders
 			decimal Quantity)
 		{
 
-			System.Data.DataRow rowToAdd = dataToBeModified.NewRow();
-			
 			clsItem thisItem = new clsItem(thisDbType, localRecords.dbConnection);
 			thisItem.GetByItemId(ItemId);
 
 			clsProduct thisProduct = new clsProduct(thisDbType, localRecords.dbConnection);
 			thisProduct.GetByProductId(ProductId);
-			
-			Modify(ItemId,
+
+			ModifyEasy(ItemId,
 				thisItem.my_OrderId(0),
 				ProductId,
 				thisItem.my_PremiseId(0),
@@ -793,24 +1079,24 @@ namespace Keyholders
 
 			//Reinitialise the Error and Warning Count
 			ResetWarningAndErrorTables();
-			
+
 			//See if this Product is already in this Order
 			clsItem thisItem = new clsItem(thisDbType, localRecords.dbConnection);
 			int numInstances = thisItem.GetByOrderIdProductId(OrderId, ProductId);
-			
+
 			clsOrder thisOrder = new clsOrder(thisDbType, localRecords.dbConnection);
 			thisOrder.GetByOrderId(OrderId);
 
 			clsProduct thisProduct = new clsProduct(thisDbType, localRecords.dbConnection);
 			thisProduct.GetByProductIdCustomerGroupId(ProductId, thisOrder.my_CustomerGroupId(0));
-			
+
 			if (numInstances == 0 || numInstances > 0 && thisProduct.my_WholeNumbersOnly(0) == productNumberType_oneOnly())
 			{
 
 				//Adding a Product to an Order (first instance of this Product in this Order
 				System.Data.DataRow rowToAdd = newDataToAdd.NewRow();
 
-				rowToAdd["Cost"] = Convert.ToDecimal(thisProduct.my_ProductCustomerGroupPrice_PriceExcludingTax(0)) ;
+				rowToAdd["Cost"] = Convert.ToDecimal(thisProduct.my_ProductCustomerGroupPrice_PriceExcludingTax(0));
 
 				rowToAdd["PremiseId"] = DBNull.Value;
 				rowToAdd["DateActivation"] = DBNull.Value;
@@ -835,7 +1121,7 @@ namespace Keyholders
 				rowToAdd["DurationNumUnits"] = thisProduct.my_DurationNumUnits(0);
 				rowToAdd["DurationUnitId"] = thisProduct.my_DurationUnitId(0);
 				rowToAdd["RequiresPremiseForActivation"] = thisProduct.my_RequiresPremiseForActivation(0);
-				
+
 
 				decimal Weight = Convert.ToDecimal(thisProduct.my_Weight(0));
 
@@ -852,7 +1138,7 @@ namespace Keyholders
 				if (NumErrors() == 0)
 				{
 					newDataToAdd.Rows.Add(rowToAdd);
-				}			
+				}
 			}
 			else
 			{
@@ -886,11 +1172,11 @@ namespace Keyholders
 
 			//Reinitialise the Error and Warning Count
 			ResetWarningAndErrorTables();
-			
+
 			//See if this Product is already in this Order
 			clsItem thisItem = new clsItem(thisDbType, localRecords.dbConnection);
 			int numInstances = thisItem.GetByOrderIdProductId(OrderId, ProductId);
-			
+
 			//			clsOrder thisOrder = new clsOrder(thisDbType, localRecords.dbConnection);
 			//			thisOrder.GetByOrderId(OrderId);
 
@@ -900,7 +1186,7 @@ namespace Keyholders
 			if (numProducts > 0)
 			{
 
-			
+
 				if (numInstances == 0 || numInstances > 0 && thisProduct.my_WholeNumbersOnly(0) == productNumberType_oneOnly())
 				{
 
@@ -912,7 +1198,7 @@ namespace Keyholders
 					if (DateActivation == "")
 					{
 						rowToAdd["DateActivation"] = DBNull.Value;
-						rowToAdd["DateActivationUtc"] =  DBNull.Value;
+						rowToAdd["DateActivationUtc"] = DBNull.Value;
 						rowToAdd["DateExpiry"] = DBNull.Value;
 						rowToAdd["DateExpiryUtc"] = DBNull.Value;
 					}
@@ -921,7 +1207,7 @@ namespace Keyholders
 						DateTime thisActivation = Convert.ToDateTime(DateActivation);
 						DateTime thisExpiry;
 
-						switch ((durationUnitType) thisProduct.my_DurationUnitId(0))
+						switch ((durationUnitType)thisProduct.my_DurationUnitId(0))
 						{
 							case durationUnitType.second:
 								thisExpiry = thisActivation.AddSeconds(thisProduct.my_DurationNumUnits(0));
@@ -948,11 +1234,11 @@ namespace Keyholders
 								thisExpiry = thisActivation.AddYears(Convert.ToInt32(thisProduct.my_DurationNumUnits(0)));
 								break;
 						}
-				
+
 						rowToAdd["DateActivation"] = localRecords.DBDateTime(thisActivation);
-						rowToAdd["DateActivationUtc"] =  localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisActivation)));
+						rowToAdd["DateActivationUtc"] = localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisActivation)));
 						rowToAdd["DateExpiry"] = localRecords.DBDateTime(thisExpiry);
-						rowToAdd["DateActivationUtc"] =  localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisExpiry)));
+						rowToAdd["DateActivationUtc"] = localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisExpiry)));
 
 					}
 
@@ -1004,7 +1290,7 @@ namespace Keyholders
 					rowToAdd["DurationNumUnits"] = thisProduct.my_DurationNumUnits(0);
 					rowToAdd["DurationUnitId"] = thisProduct.my_DurationUnitId(0);
 					rowToAdd["RequiresPremiseForActivation"] = thisProduct.my_RequiresPremiseForActivation(0);
-				
+
 
 					decimal Weight = Convert.ToDecimal(thisProduct.my_Weight(0));
 
@@ -1021,7 +1307,7 @@ namespace Keyholders
 					if (NumErrors() == 0)
 					{
 						newDataToAdd.Rows.Add(rowToAdd);
-					}			
+					}
 				}
 				else
 				{
@@ -1043,7 +1329,7 @@ namespace Keyholders
 		/// </summary>
 		/// <param name="ItemId">Id of Item to set Freight Cost for</param>
 		/// <param name="FreightCost">Freight Cost to set</param>
-		public void SetFreight(int ItemId, 
+		public void SetFreight(int ItemId,
 			decimal FreightCost)
 		{
 			SetAttribute(ItemId, "FreightCost", FreightCost.ToString());
@@ -1058,7 +1344,7 @@ namespace Keyholders
 		/// </summary>
 		/// <param name="ItemId">Id of Item to set Cost for</param>
 		/// <param name="Cost">Cost to set</param>
-		public void SetCost(int ItemId, 
+		public void SetCost(int ItemId,
 			decimal Cost)
 		{
 			SetAttribute(ItemId, "Cost", Cost.ToString());
@@ -1076,13 +1362,13 @@ namespace Keyholders
 		/// <param name="PremiseId">Premise to set</param>
 		/// <param name="DateActivation">Date that this subscription is Activated</param>
 		/// <param name="DateExpiry">Date that this subscription Expires</param>
-		public void SetPremiseId(int ItemId, 
+		public void SetPremiseId(int ItemId,
 			int PremiseId,
 			string DateActivation,
 			string DateExpiry)
 		{
 			SetAttribute(ItemId, "PremiseId", PremiseId.ToString());
-			
+
 			if (DateActivation == "" || DateExpiry == "")
 			{
 				AddAttributeToSet(ItemId, "DateActivation", DBNull.Value.ToString());
@@ -1093,13 +1379,13 @@ namespace Keyholders
 			else
 			{
 				DateTime thisActivation = Convert.ToDateTime(DateActivation);
-				DateTime thisExpiry  = Convert.ToDateTime(DateExpiry);;
+				DateTime thisExpiry = Convert.ToDateTime(DateExpiry); ;
 
 				AddAttributeToSet(ItemId, "DateActivation", localRecords.DBDateTime(thisActivation));
 				AddAttributeToSet(ItemId, "DateActivationUtc", localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisActivation))));
 				AddAttributeToSet(ItemId, "DateExpiry", localRecords.DBDateTime(thisExpiry));
 				AddAttributeToSet(ItemId, "DateExpiryUtc", localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisExpiry))));
-	
+
 			}
 		}
 
@@ -1113,7 +1399,7 @@ namespace Keyholders
 		/// </summary>
 		/// <param name="ItemId">Id of Item to set Quantity for</param>
 		/// <param name="Quantity">Quantity to set</param>
-		public void SetQuantity(int ItemId, 
+		public void SetQuantity(int ItemId,
 			decimal Quantity)
 		{
 			if (Quantity == 0)
@@ -1163,18 +1449,9 @@ namespace Keyholders
 
 		#endregion
 
-		# region Add/Modify/Validate/Save
+		#region ModifyEasy
 
-		/// <summary>
-		/// Validates the supplied data for Errors and Warnings.
-		/// If any Errors are found, ErrorFound will return true, and these Errors 
-		/// are available through the ErrorMessage and ErrorFieldName methods
-		/// If any Warnings are found, WarningFound will return true, and these Warnings 
-		/// are available through the WarningMessage and WarningFieldName methods
-		/// If there are no Errors, this method adds a new entry to the 
-		/// internal customer table stack; the Save method will save these
-		/// to the database when it is subsequently called
-		/// </summary>
+		/// <summary>ModifyEasy</summary>
 		/// <param name="ItemId">ItemId (Primary Key of Record)</param>
 		/// <param name="OrderId">Order Associated with this Item</param>
 		/// <param name="ProductId">Product Associated with this Item</param>
@@ -1198,12 +1475,12 @@ namespace Keyholders
 		/// <param name="DurationNumUnits">Number of Unit's duration (if this is a Service over time)</param>
 		/// <param name="DurationUnitId">Time Unit's e.g. year, month, day (if this is a Service over time)</param>
 		/// <param name="FreightCost"></param>
-		public void Modify(int ItemId, 
+		public void ModifyEasy(int ItemId,
 			int OrderId,
 			int ProductId,
 			int PremiseId,
 			decimal Quantity,
-			string ItemName, 
+			string ItemName,
 			string ItemCode,
 			string ShortDescription,
 			string LongDescription,
@@ -1221,72 +1498,368 @@ namespace Keyholders
 			int DurationUnitId,
 			decimal FreightCost)
 		{
-			//Reinitialise the Error and Warning Count
-			ResetWarningAndErrorTables();
 
-			//Validate the data supplied
-			System.Data.DataRow rowToAdd = dataToBeModified.NewRow();
-			rowToAdd["ItemId"] = ItemId;
-
-			rowToAdd["OrderId"] = OrderId;
-			
-			if (ProductId != 0)
-				rowToAdd["ProductId"] = ProductId;
-			else
-				rowToAdd["ProductId"] = DBNull.Value;
-
-			if (PremiseId != 0)
-				rowToAdd["PremiseId"] = PremiseId;
-			else
-				rowToAdd["PremiseId"] = DBNull.Value;
-
-
-			rowToAdd["Quantity"] = Quantity;
-			rowToAdd["ItemName"] = ItemName;
-			rowToAdd["ItemCode"] = ItemCode;
-			rowToAdd["ShortDescription"] = ShortDescription;
-			rowToAdd["LongDescription"] = LongDescription;
-			
 			if (priceShownIncludesLocalTaxRate)
 				Cost = Cost / localTaxRate;
 
-			if (Weight != 0)
-				rowToAdd["Weight"] = Weight;
-			else
-				rowToAdd["Weight"] = DBNull.Value;
+			string DateActivationUtc = "";
+			string DateExpiryUtc = "";
+
+			if (DateActivation != "" && DateExpiry != "")
+			{
+				DateTime thisActivation = Convert.ToDateTime(DateActivation);
+				DateTime thisExpiry = Convert.ToDateTime(DateExpiry);
+
+				DateActivation = localRecords.DBDateTime(thisActivation);
+				DateActivationUtc = localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisActivation)));
+				DateExpiry = localRecords.DBDateTime(thisExpiry);
+				DateExpiryUtc = localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisExpiry)));
+			}
+
+			Modify(
+			   ItemId,
+			   OrderId,
+
+			   ProductId,
+			   PremiseId,
+
+			   Quantity,
+
+			   ItemName,
+			   ItemCode,
+
+			   ShortDescription,
+			   LongDescription,
+
+			   Cost,
+			   Weight,
+
+			   MaxKeyholdersPerPremise,
+			   MaxAssetRegisterAssets,
+			   MaxAssetRegisterStorage,
+			   MaxDocumentSafeDocuments,
+			   MaxDocumentSafeStorage,
+			   RequiresPremiseForActivation,
+
+			   DateActivation,
+			   DateActivationUtc,
+			   DateExpiry,
+			   DateExpiryUtc,
+
+			   DurationNumUnits,
+
+			   DurationUnitId,
+
+			   FreightCost
+			   );
+
+			#region Old
+
+			//         //Reinitialise the Error and Warning Count
+			//         ResetWarningAndErrorTables();
+
+			////Validate the data supplied
+			//System.Data.DataRow rowToAdd = dataToBeModified.NewRow();
+			//rowToAdd["ItemId"] = ItemId;
+
+			//rowToAdd["OrderId"] = OrderId;
+
+			//if (ProductId != 0)
+			//	rowToAdd["ProductId"] = ProductId;
+			//else
+			//	rowToAdd["ProductId"] = DBNull.Value;
+
+			//if (PremiseId != 0)
+			//	rowToAdd["PremiseId"] = PremiseId;
+			//else
+			//	rowToAdd["PremiseId"] = DBNull.Value;
+
+
+			//rowToAdd["Quantity"] = Quantity;
+			//rowToAdd["ItemName"] = ItemName;
+			//rowToAdd["ItemCode"] = ItemCode;
+			//rowToAdd["ShortDescription"] = ShortDescription;
+			//rowToAdd["LongDescription"] = LongDescription;
+
+			//if (priceShownIncludesLocalTaxRate)
+			//	Cost = Cost / localTaxRate;
+
+			//if (Weight != 0)
+			//	rowToAdd["Weight"] = Weight;
+			//else
+			//	rowToAdd["Weight"] = DBNull.Value;
+
+			//rowToAdd["MaxKeyholdersPerPremise"] = MaxKeyholdersPerPremise;
+			//rowToAdd["MaxAssetRegisterAssets"] = MaxAssetRegisterAssets;
+			//rowToAdd["MaxAssetRegisterStorage"] = MaxAssetRegisterStorage;
+			//rowToAdd["MaxDocumentSafeDocuments"] = MaxDocumentSafeDocuments;
+			//rowToAdd["MaxDocumentSafeStorage"] = MaxDocumentSafeStorage;
+
+			//rowToAdd["RequiresPremiseForActivation"] = RequiresPremiseForActivation;
+
+			//if (DateActivation == "" || DateExpiry == "")
+			//{
+			//	rowToAdd["DateActivation"] = DBNull.Value;
+			//	rowToAdd["DateActivationUtc"] = DBNull.Value;
+			//	rowToAdd["DateExpiry"] = DBNull.Value;
+			//	rowToAdd["DateExpiryUtc"] = DBNull.Value;
+			//}
+			//else
+			//{
+			//	DateTime thisActivation = Convert.ToDateTime(DateActivation);
+			//	DateTime thisExpiry = Convert.ToDateTime(DateExpiry); ;
+
+			//	rowToAdd["DateActivation"] = localRecords.DBDateTime(thisActivation);
+			//	rowToAdd["DateActivationUtc"] = localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisActivation)));
+			//	rowToAdd["DateExpiry"] = localRecords.DBDateTime(thisExpiry);
+			//	rowToAdd["DateActivationUtc"] = localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisExpiry)));
+			//}
+
+
+			//rowToAdd["DurationNumUnits"] = DurationNumUnits;
+			//rowToAdd["DurationUnitId"] = DurationUnitId;
+			//rowToAdd["FreightCost"] = DBNull.Value;
+
+			//Validate(rowToAdd, false);
+
+			//if (NumErrors() == 0)
+			//{
+			//	if (UserChanges(rowToAdd))
+			//		dataToBeModified.Rows.Add(rowToAdd);
+			//}
+
+			#endregion
+
+		}
+
+		#endregion
+
+		#region Add/Modify
+
+		#region Add
+
+		/// <summary>Add</summary>
+		/// <param name="OrderId">OrderId</param>
+		/// <param name="ProductId">ProductId</param>
+		/// <param name="PremiseId">PremiseId</param>
+		/// <param name="Quantity">Quantity</param>
+		/// <param name="ItemName">ItemName</param>
+		/// <param name="ItemCode">ItemCode</param>
+		/// <param name="ShortDescription">ShortDescription</param>
+		/// <param name="LongDescription">LongDescription</param>
+		/// <param name="Cost">Cost</param>
+		/// <param name="Weight">Weight</param>
+		/// <param name="MaxKeyholdersPerPremise">MaxKeyholdersPerPremise</param>
+		/// <param name="MaxAssetRegisterAssets">MaxAssetRegisterAssets</param>
+		/// <param name="MaxAssetRegisterStorage">MaxAssetRegisterStorage</param>
+		/// <param name="MaxDocumentSafeDocuments">MaxDocumentSafeDocuments</param>
+		/// <param name="MaxDocumentSafeStorage">MaxDocumentSafeStorage</param>
+		/// <param name="RequiresPremiseForActivation">RequiresPremiseForActivation</param>
+		/// <param name="DateActivation">DateActivation</param>
+		/// <param name="DateActivationUtc">DateActivationUtc</param>
+		/// <param name="DateExpiry">DateExpiry</param>
+		/// <param name="DateExpiryUtc">DateExpiryUtc</param>
+		/// <param name="DurationNumUnits">DurationNumUnits</param>
+		/// <param name="DurationUnitId">DurationUnitId</param>
+		/// <param name="FreightCost">FreightCost</param>
+		public void Add(
+		   int OrderId,
+
+		   int ProductId,
+		   int PremiseId,
+
+		   decimal Quantity,
+
+		   string ItemName,
+		   string ItemCode,
+
+		   string ShortDescription,
+		   string LongDescription,
+
+		   decimal Cost,
+		   decimal Weight,
+
+		   int MaxKeyholdersPerPremise,
+		   int MaxAssetRegisterAssets,
+		   int MaxAssetRegisterStorage,
+		   int MaxDocumentSafeDocuments,
+		   int MaxDocumentSafeStorage,
+		   int RequiresPremiseForActivation,
+
+		   string DateActivation,
+		   string DateActivationUtc,
+		   string DateExpiry,
+		   string DateExpiryUtc,
+
+		   double DurationNumUnits,
+
+		   int DurationUnitId,
+
+		   decimal FreightCost
+		   )
+		{
+
+			//Reinitialise the Error and Warning Count
+			ResetWarningAndErrorTables();
+
+			System.Data.DataRow rowToAdd = newDataToAdd.NewRow();
+
+
+			rowToAdd["OrderId"] = OrderId;
+			rowToAdd["ProductId"] = ProductId;
+			rowToAdd["PremiseId"] = PremiseId;
+
+			rowToAdd["Quantity"] = Quantity;
+
+			rowToAdd["ItemName"] = ItemName;
+			rowToAdd["ItemCode"] = ItemCode;
+
+			rowToAdd["ShortDescription"] = ShortDescription;
+			rowToAdd["LongDescription"] = LongDescription;
+
+			rowToAdd["Cost"] = Cost;
+			rowToAdd["Weight"] = Weight;
 
 			rowToAdd["MaxKeyholdersPerPremise"] = MaxKeyholdersPerPremise;
 			rowToAdd["MaxAssetRegisterAssets"] = MaxAssetRegisterAssets;
 			rowToAdd["MaxAssetRegisterStorage"] = MaxAssetRegisterStorage;
 			rowToAdd["MaxDocumentSafeDocuments"] = MaxDocumentSafeDocuments;
 			rowToAdd["MaxDocumentSafeStorage"] = MaxDocumentSafeStorage;
-
 			rowToAdd["RequiresPremiseForActivation"] = RequiresPremiseForActivation;
 
-			if (DateActivation == "" || DateExpiry == "")
-			{
-				rowToAdd["DateActivation"] = DBNull.Value;
-				rowToAdd["DateActivationUtc"] =  DBNull.Value;
-				rowToAdd["DateExpiry"] = DBNull.Value;
-				rowToAdd["DateExpiryUtc"] = DBNull.Value;
-			}
-			else
-			{
-				DateTime thisActivation = Convert.ToDateTime(DateActivation);
-				DateTime thisExpiry  = Convert.ToDateTime(DateExpiry);;
-
-				rowToAdd["DateActivation"] = localRecords.DBDateTime(thisActivation);
-				rowToAdd["DateActivationUtc"] =  localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisActivation)));
-				rowToAdd["DateExpiry"] = localRecords.DBDateTime(thisExpiry);
-				rowToAdd["DateActivationUtc"] =  localRecords.DBDateTime(Convert.ToDateTime(FromClientToUtcTime(thisExpiry)));
-			}
-
+			rowToAdd["DateActivation"] = SanitiseDate(DateActivation);
+			rowToAdd["DateActivationUtc"] = SanitiseDate(DateActivationUtc);
+			rowToAdd["DateExpiry"] = SanitiseDate(DateExpiry);
+			rowToAdd["DateExpiryUtc"] = SanitiseDate(DateExpiryUtc);
 
 			rowToAdd["DurationNumUnits"] = DurationNumUnits;
-			rowToAdd["DurationUnitId"] = DurationUnitId;
-			rowToAdd["FreightCost"] = DBNull.Value;
 
-			Validate(rowToAdd, false);
+			rowToAdd["DurationUnitId"] = DurationUnitId;
+
+			rowToAdd["FreightCost"] = FreightCost;
+
+
+			//Validate the data supplied
+			Validate(rowToAdd, true);
+
+			if (NumErrors() == 0)
+			{
+				newDataToAdd.Rows.Add(rowToAdd);
+			}
+
+		}
+
+		#endregion
+
+		#region Modify
+
+		/// <summary>Modify</summary>
+		/// <param name="ItemId">ItemId (Primary Key of Record)</param>
+		/// <param name="OrderId">OrderId</param>
+		/// <param name="ProductId">ProductId</param>
+		/// <param name="PremiseId">PremiseId</param>
+		/// <param name="Quantity">Quantity</param>
+		/// <param name="ItemName">ItemName</param>
+		/// <param name="ItemCode">ItemCode</param>
+		/// <param name="ShortDescription">ShortDescription</param>
+		/// <param name="LongDescription">LongDescription</param>
+		/// <param name="Cost">Cost</param>
+		/// <param name="Weight">Weight</param>
+		/// <param name="MaxKeyholdersPerPremise">MaxKeyholdersPerPremise</param>
+		/// <param name="MaxAssetRegisterAssets">MaxAssetRegisterAssets</param>
+		/// <param name="MaxAssetRegisterStorage">MaxAssetRegisterStorage</param>
+		/// <param name="MaxDocumentSafeDocuments">MaxDocumentSafeDocuments</param>
+		/// <param name="MaxDocumentSafeStorage">MaxDocumentSafeStorage</param>
+		/// <param name="RequiresPremiseForActivation">RequiresPremiseForActivation</param>
+		/// <param name="DateActivation">DateActivation</param>
+		/// <param name="DateActivationUtc">DateActivationUtc</param>
+		/// <param name="DateExpiry">DateExpiry</param>
+		/// <param name="DateExpiryUtc">DateExpiryUtc</param>
+		/// <param name="DurationNumUnits">DurationNumUnits</param>
+		/// <param name="DurationUnitId">DurationUnitId</param>
+		/// <param name="FreightCost">FreightCost</param>
+		public void Modify(
+		   int ItemId,
+		   int OrderId,
+
+		   int ProductId,
+		   int PremiseId,
+
+		   decimal Quantity,
+
+		   string ItemName,
+		   string ItemCode,
+
+		   string ShortDescription,
+		   string LongDescription,
+
+		   decimal Cost,
+		   decimal Weight,
+
+		   int MaxKeyholdersPerPremise,
+		   int MaxAssetRegisterAssets,
+		   int MaxAssetRegisterStorage,
+		   int MaxDocumentSafeDocuments,
+		   int MaxDocumentSafeStorage,
+		   int RequiresPremiseForActivation,
+
+		   string DateActivation,
+		   string DateActivationUtc,
+		   string DateExpiry,
+		   string DateExpiryUtc,
+
+		   double DurationNumUnits,
+
+		   int DurationUnitId,
+
+		   decimal FreightCost
+		   )
+		{
+
+			//Reinitialise the Error and Warning Count
+			ResetWarningAndErrorTables();
+
+			System.Data.DataRow rowToAdd = dataToBeModified.NewRow();
+
+
+			rowToAdd["ItemId"] = ItemId;
+
+			rowToAdd["OrderId"] = OrderId;
+			rowToAdd["ProductId"] = ProductId;
+			rowToAdd["PremiseId"] = PremiseId;
+
+			rowToAdd["Quantity"] = Quantity;
+
+			rowToAdd["ItemName"] = ItemName;
+			rowToAdd["ItemCode"] = ItemCode;
+
+			rowToAdd["ShortDescription"] = ShortDescription;
+			rowToAdd["LongDescription"] = LongDescription;
+
+			rowToAdd["Cost"] = Cost;
+			rowToAdd["Weight"] = Weight;
+
+			rowToAdd["MaxKeyholdersPerPremise"] = MaxKeyholdersPerPremise;
+			rowToAdd["MaxAssetRegisterAssets"] = MaxAssetRegisterAssets;
+			rowToAdd["MaxAssetRegisterStorage"] = MaxAssetRegisterStorage;
+			rowToAdd["MaxDocumentSafeDocuments"] = MaxDocumentSafeDocuments;
+			rowToAdd["MaxDocumentSafeStorage"] = MaxDocumentSafeStorage;
+			rowToAdd["RequiresPremiseForActivation"] = RequiresPremiseForActivation;
+
+			rowToAdd["DateActivation"] = SanitiseDate(DateActivation);
+			rowToAdd["DateActivationUtc"] = SanitiseDate(DateActivationUtc);
+			rowToAdd["DateExpiry"] = SanitiseDate(DateExpiry);
+			rowToAdd["DateExpiryUtc"] = SanitiseDate(DateExpiryUtc);
+
+			rowToAdd["DurationNumUnits"] = DurationNumUnits;
+
+			rowToAdd["DurationUnitId"] = DurationUnitId;
+
+			rowToAdd["FreightCost"] = FreightCost;
+
+
+			//Validate the data supplied
+			Validate(rowToAdd, true);
 
 			if (NumErrors() == 0)
 			{
@@ -1296,22 +1869,20 @@ namespace Keyholders
 
 		}
 
+		#endregion
 
+		#endregion
 
-		/// <summary>
-		/// Validates data recieved by the Add or Modify Public Methods.
-		/// If any Errors are found, ErrorFound will return true, and these Errors 
-		/// are available through the ErrorMessage and ErrorFieldName methods
-		/// If any Warnings are found, WarningFound will return true, and these Warnings 
-		/// are available through the WarningMessage and WarningFieldName methods		
-		/// </summary>
+		#region Validate
+
+		/// <summary>Validate</summary>
 		/// <param name="valuesToValidate">Values to be Validated.</param>
 		/// <param name="newRow">Indicates whether the Row being validated 
 		/// is new or already exists in the system</param>
 		private void Validate(System.Data.DataRow valuesToValidate, bool newRow)
 		{
 			if (valuesToValidate["ProductId"] != DBNull.Value)
-			{			
+			{
 				clsProduct thisProduct = new clsProduct(thisDbType, localRecords.dbConnection);
 				thisProduct.GetByProductId(Convert.ToInt32(valuesToValidate["ProductId"]));
 
@@ -1331,7 +1902,7 @@ namespace Keyholders
 
 				if (thisProduct.my_UseStockControl(0) == 1)
 					usesStockControl = true;
-				
+
 				if (usesStockControl && QuantityAvailable < desiredQuantity)
 				{
 					System.Data.DataRow rowToAdd = errorData.NewRow();
@@ -1340,7 +1911,7 @@ namespace Keyholders
 					rowToAdd["Message"] = "There are only " + QuantityAvailable.ToString()
 						+ quantityDescription + " of " + productName
 						+ " currently available.";
-					
+
 					errorData.Rows.Add(rowToAdd);
 				}
 
@@ -1350,7 +1921,7 @@ namespace Keyholders
 					System.Data.DataRow rowToAdd = errorData.NewRow();
 					rowToAdd["FieldName"] = "Quantity";
 					rowToAdd["Message"] = "The maximum quanitity of " + productName
-						+ " you can order is " + maxQuantity.ToString() 
+						+ " you can order is " + maxQuantity.ToString()
 						+ quantityDescription + ".";
 
 					errorData.Rows.Add(rowToAdd);
@@ -1372,7 +1943,7 @@ namespace Keyholders
 		/// <returns>Number of resulting records</returns>
 		public int UpdateItemCosts(int OrderId, int CustomerGroupId)
 		{
-	
+
 			string update = "Update " + thisTable + "," + crLf
 				+ "(select productId, price as NewCost " + crLf
 				+ "	from tblProductCustomerGroupPrice " + crLf
@@ -1394,7 +1965,7 @@ namespace Keyholders
 		/// <returns>Number of Records Affected</returns>
 		public int UpdateItemAndFreightCosts(int OrderId, int CustomerGroupId, int ShippingZoneId)
 		{
-	
+
 			string update = "Update " + thisTable + "," + crLf
 				+ "(select productId, price as NewCost " + crLf
 				+ "	from tblProductCustomerGroupPrice " + crLf
@@ -1407,7 +1978,7 @@ namespace Keyholders
 					+ "(select productId, Cost as NewFreightCost " + crLf
 					+ "	from tblFrSzCgP, tblFreightRule" + crLf
 					+ "	where tblFrSzCgP.FreightRuleId = tblFreightRule.FreightRuleId " + crLf
-//					+ "		And Archive = 0 " + crLf
+					//					+ "		And Archive = 0 " + crLf
 					+ "		And CustomerGroupId = " + CustomerGroupId.ToString() + crLf
 					+ "		And ShippingZoneId = " + ShippingZoneId.ToString() + crLf
 					+ ") tblFrSzCgP" + crLf;
@@ -1417,7 +1988,7 @@ namespace Keyholders
 
 			if (freightChargeBasis == freightChargeType.singleChargePerItem)
 				update += "," + "tblItem.FreightCost = NewFreightCost" + crLf;
-			
+
 			update += "where orderid = " + OrderId.ToString() + crLf
 				+ "and tblItem.ProductId = tblProductCustomerGroupPrice.productId" + crLf;
 
@@ -1440,12 +2011,12 @@ namespace Keyholders
 				+ "from tblProduct) tblProduct" + crLf;
 
 			update += "set tblItem.Quantity = MaxAllowable" + crLf;
-			
+
 			update += "where orderid = " + OrderId.ToString() + crLf
 				+ "and MaxAllowable > -1" + crLf
 				+ "and tblItem.Quantity > tblProduct.MaxAllowable" + crLf
 				+ "and tblItem.ProductId = tblProduct.productId" + crLf;
-			
+
 			int results = localRecords.GetRecords(update);
 			int recordsToDelete = GetByQuantity(0);
 			if (recordsToDelete > 0)
@@ -1471,7 +2042,7 @@ namespace Keyholders
 				+ ") tblItem" + crLf;
 
 			update += "set tblProduct.QuantityAvailable = tblItem.newQA" + crLf;
-			
+
 			int results = localRecords.GetRecords(update);
 			return results;
 		}
@@ -1480,7 +2051,7 @@ namespace Keyholders
 		#endregion
 
 		#region Delete Methods
-		
+
 
 		/// <summary>
 		/// Deletes 
@@ -1499,137 +2070,225 @@ namespace Keyholders
 
 		#endregion
 
-		# region My_ Values Item
+		#region My_ Values Item
 
-		/// <summary>
-		/// <see cref="clsItem.my_ItemId">Id</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
+		/// <summary>ItemId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_ItemId">Id</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>	
+		/// <returns>ItemId</returns>
 		public int my_ItemId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "ItemId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_OrderId">Id</see> of 
-		/// <see cref="clsOrder">Order</see>
-		/// Associated with this Item</summary>
+
+		/// <summary>OrderId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_OrderId">Id</see> 
-		/// of <see cref="clsOrder">Order</see> 
-		/// for this Item</returns>	
+		/// <returns>OrderId</returns>
 		public int my_OrderId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "OrderId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsProduct.my_ProductId">Id</see> of 
-		/// <see cref="clsProduct">Product</see>
-		/// Associated with this Item</summary>
+
+		/// <summary>ProductId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsProduct.my_ProductId">Id</see> 
-		/// of <see cref="clsProduct">Product</see> 
-		/// for this Item</returns>	
+		/// <returns>ProductId</returns>
 		public int my_ProductId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "ProductId"));
 		}
 
 
-		/// <summary>
-		/// <see cref="clsPremise.my_PremiseId">Id</see> of 
-		/// <see cref="clsPremise">Premise</see>
-		/// Associated with this Item</summary>
+		/// <summary>PremiseId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsPremise.my_PremiseId">Id</see> 
-		/// of <see cref="clsPremise">Premise</see> 
-		/// for this Item</returns>	
+		/// <returns>PremiseId</returns>
 		public int my_PremiseId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "PremiseId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsItem.my_Quantity">Quantity of Item in Order</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
+
+		/// <summary>Quantity</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_Quantity">Quantity of Item in Order</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>	
+		/// <returns>Quantity</returns>
 		public decimal my_Quantity(int rowNum)
 		{
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Quantity"));
 		}
 
-		/// <summary>
-		/// <see cref="clsItem.my_ItemName">Name</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
+
+		/// <summary>ItemName</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_ItemName">Name</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>
+		/// <returns>ItemName</returns>
 		public string my_ItemName(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "ItemName");
 		}
 
-		/// <summary>
-		/// <see cref="clsItem.my_ItemCode">Code</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
+
+		/// <summary>ItemCode</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_ItemCode">Code</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>
+		/// <returns>ItemCode</returns>
 		public string my_ItemCode(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "ItemCode");
 		}
 
-		/// <summary>
-		/// <see cref="clsItem.my_ShortDescription">Short Description</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
+
+		/// <summary>ShortDescription</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_ShortDescription">Short Description</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>
+		/// <returns>ShortDescription</returns>
 		public string my_ShortDescription(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "ShortDescription");
 		}
 
-		/// <summary>
-		/// <see cref="clsItem.my_LongDescription">Long Description</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
+
+		/// <summary>LongDescription</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_LongDescription">Long Description</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>
+		/// <returns>LongDescription</returns>
 		public string my_LongDescription(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "LongDescription");
 		}
 
-		/// <summary>
-		/// <see cref="clsItem.my_Cost">Cost (for display)</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
+
+		/// <summary>Weight</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_Cost">Cost (for display)</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>
+		/// <returns>Weight</returns>
+		public decimal my_Weight(int rowNum)
+		{
+			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Weight"));
+		}
+
+
+		/// <summary>MaxKeyholdersPerPremise</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>MaxKeyholdersPerPremise</returns>
+		public int my_MaxKeyholdersPerPremise(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "MaxKeyholdersPerPremise"));
+		}
+
+
+		/// <summary>MaxAssetRegisterAssets</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>MaxAssetRegisterAssets</returns>
+		public int my_MaxAssetRegisterAssets(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "MaxAssetRegisterAssets"));
+		}
+
+
+		/// <summary>MaxAssetRegisterStorage</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>MaxAssetRegisterStorage</returns>
+		public int my_MaxAssetRegisterStorage(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "MaxAssetRegisterStorage"));
+		}
+
+
+		/// <summary>MaxDocumentSafeDocuments</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>MaxDocumentSafeDocuments</returns>
+		public int my_MaxDocumentSafeDocuments(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "MaxDocumentSafeDocuments"));
+		}
+
+
+		/// <summary>MaxDocumentSafeStorage</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>MaxDocumentSafeStorage</returns>
+		public int my_MaxDocumentSafeStorage(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "MaxDocumentSafeStorage"));
+		}
+
+
+		/// <summary>RequiresPremiseForActivation</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>RequiresPremiseForActivation</returns>
+		public int my_RequiresPremiseForActivation(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "RequiresPremiseForActivation"));
+		}
+
+
+		/// <summary>DateActivation</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>DateActivation</returns>
+		public string my_DateActivation(int rowNum)
+		{
+			return localRecords.FieldByName(rowNum, "DateActivation");
+		}
+
+
+		/// <summary>DateActivationUtc</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>DateActivationUtc</returns>
+		public string my_DateActivationUtc(int rowNum)
+		{
+			return localRecords.FieldByName(rowNum, "DateActivationUtc");
+		}
+
+
+		/// <summary>DateExpiry</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>DateExpiry</returns>
+		public string my_DateExpiry(int rowNum)
+		{
+			return localRecords.FieldByName(rowNum, "DateExpiry");
+		}
+
+
+		/// <summary>DateExpiryUtc</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>DateExpiryUtc</returns>
+		public string my_DateExpiryUtc(int rowNum)
+		{
+			return localRecords.FieldByName(rowNum, "DateExpiryUtc");
+		}
+
+
+		/// <summary>DurationNumUnits</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>DurationNumUnits</returns>
+		public double my_DurationNumUnits(int rowNum)
+		{
+			return Convert.ToDouble(localRecords.FieldByName(rowNum, "DurationNumUnits"));
+		}
+
+
+		/// <summary>DurationUnitId</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>DurationUnitId</returns>
+		public int my_DurationUnitId(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "DurationUnitId"));
+		}
+
+
+		/// <summary>FreightCost</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>FreightCost</returns>
+		public decimal my_FreightCost(int rowNum)
+		{
+			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "FreightCost"));
+		}
+
+
+		#endregion
+
+		#region Special My_ Values for Item
+
+		/// <summary>Cost</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>Cost</returns>
 		public decimal my_Cost(int rowNum)
 		{
-			
+
 			//If the Cost shown includes the local tax rate, 
 			//then the Cost we have been given also includes the local tax rate.
 			//But we always store the Cost without tax...
@@ -1639,339 +2298,42 @@ namespace Keyholders
 				return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Cost"));
 		}
 
-		/// <summary>
-		/// <see cref="clsItem.my_CostIncludingTax">Cost (Including Tax)</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
+
+		/// <summary>CostIncludingTax</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_CostIncludingTax">Cost (Including Tax)</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>
+		/// <returns>CostIncludingTax</returns>
 		public decimal my_CostIncludingTax(int rowNum)
 		{
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Cost")) * localTaxRate;
 		}
 
-		/// <summary>
-		/// <see cref="clsItem.my_CostExcludingTax">Cost (Excluding Tax)</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
+		/// <summary>CostExcludingTax</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_CostExcludingTax">Cost (Excluding Tax)</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>
+		/// <returns>CostExcludingTax</returns>
 		public decimal my_CostExcludingTax(int rowNum)
 		{
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Cost"));
 		}
-		
-		/// <summary>
-		/// <see cref="clsItem.my_InvoiceCost">Cost (For an Invoice)</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
+
+		/// <summary>InvoiceCost</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_InvoiceCost">Cost (For an Invoice)</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>
+		/// <returns>InvoiceCost</returns>
 		public decimal my_InvoiceCost(int rowNum)
 		{
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Cost"));
 		}
 
-		/// <summary>
-		/// <see cref="clsItem.my_Weight">Weight</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
+		/// <summary>InvoiceCost</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_Weight">Weight</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>
-		public decimal my_Weight(int rowNum)
-		{
-			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Weight"));
-		}
-
-
-		/// <summary>
-		/// <see cref="clsItem.my_FreightCost">Freight Cost</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_FreightCost">Freight Cost</see> 
-		/// of <see cref="clsItem">Item</see> 
-		/// </returns>
-		public decimal my_FreightCost(int rowNum)
-		{
-			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "FreightCost"));
-		}
-
-		/// <summary>
-		/// Whether this 
-		/// <see cref="clsItem">Item</see> uses
-		/// <see cref="clsItem.my_UseStockControl"> Stock Control</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>Whether this 
-		/// <see cref="clsItem">Item</see> uses 
-		/// <see cref="clsItem.my_UseStockControl"> Stock Control</see></returns>
-		public int my_UseStockControl(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "UseStockControl"));
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_QuantityAvailable">Quantity Available</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_QuantityAvailable">Quantity Available</see> of 
-		/// <see cref="clsItem">Item</see></returns>
-		public decimal my_QuantityAvailable(int rowNum)
-		{
-			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "QuantityAvailable"));
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_MaxQuantity">Maximum Quantity</see> of 
-		/// <see cref="clsItem">Item</see> purchasable at one time
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_MaxQuantity">Maximum Quantity</see> of 
-		/// <see cref="clsItem">Item</see>  purchasable at one time</returns>
-		public decimal my_MaxQuantity(int rowNum)
-		{
-			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "MaxQuantity"));
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_MaxAllowable">Maximum Allowable</see> Quantity of 
-		/// <see cref="clsItem">Item</see> purchasable at this time 
-		/// (uses MaxQuantity, UsesStockControl and QuantityAvailable to calculate this)
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_MaxAllowable">Maximum Allowable</see> of 
-		/// <see cref="clsItem">Item</see>  purchasable at this time</returns>
-		public decimal my_MaxAllowable(int rowNum)
-		{
-			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "MaxAllowable"));
-		}
-
-		/// <summary>
-		/// Whether this 
-		/// <see cref="clsItem">Item</see>  is
-		/// <see cref="clsItem.my_WholeNumbersOnly">discrete or continuous</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>Whether this 
-		/// <see cref="clsItem">Item</see>  is 
-		/// <see cref="clsItem.my_WholeNumbersOnly">discrete or continuous</see></returns>
-		public int my_WholeNumbersOnly(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "WholeNumbersOnly"));
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_QuantityDescription">Quantity Description</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_QuantityDescription">Quantity Description</see> of 
-		/// <see cref="clsItem">Item</see></returns>
-		public string my_QuantityDescription(int rowNum)
-		{
-			return localRecords.FieldByName(rowNum, "QuantityDescription");
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_MaxKeyholdersPerPremise">Maximum number of Keyholders per Premise</see>
-		///  allowed for this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>		
-		/// <see cref="clsItem.my_MaxKeyholdersPerPremise">Maximum number of Keyholders per Premise</see>
-		///  allowed for this 
-		/// <see cref="clsItem">Item</see></returns>
-		public int my_MaxKeyholdersPerPremise(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "MaxKeyholdersPerPremise"));
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_MaxAssetRegisterAssets">Maximum number of Assets in the Asset Register</see>
-		///  allowed for this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>		
-		/// <see cref="clsItem.my_MaxAssetRegisterAssets">Maximum number of Assets in the Asset Register</see>
-		///  allowed for this 
-		/// <see cref="clsItem">Item</see></returns>	
-		public int my_MaxAssetRegisterAssets(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "MaxAssetRegisterAssets"));
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_MaxAssetRegisterStorage">Maximum Total Storage of Asset Register</see>
-		///  allowed for this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>		
-		/// <see cref="clsItem.my_MaxAssetRegisterStorage">Maximum Total Storage of Asset Register</see>
-		///  allowed for this 
-		/// <see cref="clsItem">Item</see></returns>	
-		public int my_MaxAssetRegisterStorage(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "MaxAssetRegisterStorage"));
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_MaxDocumentSafeDocuments">Maximum number of Documents in the Document Safe</see>
-		///  allowed for this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>		
-		/// <see cref="clsItem.my_MaxDocumentSafeDocuments">Maximum number of Documents in the Document Safe</see>
-		///  allowed for this 
-		/// <see cref="clsItem">Item</see></returns>	
-		public int my_MaxDocumentSafeDocuments(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "MaxDocumentSafeDocuments"));
-		}
-
-
-		/// <summary>
-		/// <see cref="clsItem.my_MaxDocumentSafeStorage">Maximum number of Storage in the Document Safe</see>
-		///  allowed for this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>		
-		/// <see cref="clsItem.my_MaxDocumentSafeStorage">Maximum number of Storage in the Document Safe</see>
-		///  allowed for this 
-		/// <see cref="clsItem">Item</see></returns>	
-		public int my_MaxDocumentSafeStorage(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "MaxDocumentSafeStorage"));
-		}
-
-		/// <summary><see cref="clsItem.my_DurationUnitId">Time Unit's e.g. year, month, day 
-		/// (if this is a Service over time)</see> for this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_DurationUnitId">Time Unit's e.g. year, month, day 
-		/// (if this is a Service over time</see>) for this 
-		/// <see cref="clsItem">Item</see>
-		/// </returns>	
-		public int my_DurationUnitId(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "DurationUnitId"));
-		}
-
-
-		/// <summary><see cref="clsItem.my_DurationUnitId">Time Unit's e.g. year, month, day 
-		/// (if this is a Service over time)</see> for this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_DurationUnitId">Time Unit's e.g. year, month, day 
-		/// (if this is a Service over time</see>) for this 
-		/// <see cref="clsItem">Item</see>
-		/// </returns>	
+		/// <returns>InvoiceCost</returns>
 		public string my_DurationUnitTypeName(int rowNum)
 		{
-			return durationUnitTypeName(Convert.ToInt32(localRecords.FieldByName(rowNum, "DurationUnitId")));
+			return durationUnitTypeName(my_DurationUnitId(rowNum));
 		}
 
-		/// <summary>
-		/// <see cref="clsItem.my_DurationNumUnits">Number of Unit's duration</see> (if this is a Service over time) for this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_DurationNumUnits">Number of Unit's duration</see> (if this is a Service over time) for this 
-		/// <see cref="clsItem">Item</see>
-		/// </returns>
-		public decimal my_DurationNumUnits(int rowNum)
-		{
-			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "DurationNumUnits"));
-		}
+		#endregion
 
-
-		/// <summary>Whether this <see cref="clsItem">Item</see> 
-		/// <see cref="clsItem.my_RequiresPremiseForActivation">Requires an associated Premise in order to be Activated</see>  
-		/// (if this is a Premise/Time Related Item)</summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>Whether this <see cref="clsItem">Item</see> 
-		/// <see cref="clsItem.my_RequiresPremiseForActivation">Requires an associated Premise in order to be Activated</see>  
-		/// (if this is a Premise/Time Related Item)</returns>	
-		public int my_RequiresPremiseForActivation(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "RequiresPremiseForActivation"));
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_DateActivation">Date of Activation (Client Time) of</see> this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>	
-		/// <see cref="clsItem.my_DateActivation">Date of Activation (Client Time) of</see> this 
-		/// <see cref="clsItem">Item</see>
-		/// </returns>	
-		public string my_DateActivation(int rowNum)
-		{
-			return localRecords.FieldByName(rowNum, "DateActivation");
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_DateActivation">Date of Activation (UTC Time) of</see> this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>	
-		/// <see cref="clsItem.my_DateActivation">Date of Activation (UTC Time) of</see> this 
-		/// <see cref="clsItem">Item</see>
-		/// </returns>
-		public string my_DateActivationUtc(int rowNum)
-		{
-			return localRecords.FieldByName(rowNum, "DateActivationUtc");
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_DateExpiry">Date of Expiry (Client Time) of</see> this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>	
-		/// <see cref="clsItem.my_DateExpiry">Date of Expiry (Client Time) of</see> this 
-		/// <see cref="clsItem">Item</see>
-		/// </returns>	
-		public string my_DateExpiry(int rowNum)
-		{
-			return localRecords.FieldByName(rowNum, "DateExpiry");
-		}
-
-		/// <summary>
-		/// <see cref="clsItem.my_DateExpiry">Date of Expiry (UTC Time) of</see> this 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <returns>	
-		/// <param name="rowNum">Record Index</param>
-		/// <see cref="clsItem.my_DateExpiry">Date of Expiry (UTC Time) of</see> this 
-		/// <see cref="clsItem">Item</see>
-		/// </returns>
-		public string my_DateExpiryUtc(int rowNum)
-		{
-			return localRecords.FieldByName(rowNum, "DateExpiryUtc");
-		}
-
-		# endregion
-
-		# region My_ Values Product
+		#region My_ Values Product
 
 		/// <summary>
 		/// <see cref="clsDefinedContent.my_DefinedContentId">Id</see> of 
@@ -2225,7 +2587,7 @@ namespace Keyholders
 		{
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Product_MaxQuantity"));
 		}
-		
+
 
 		/// <summary>
 		/// <see cref="clsProduct.my_MaxAllowable">Maximum Quantity/Number of Stock purchasable at this time</see>
@@ -2277,7 +2639,7 @@ namespace Keyholders
 
 		#endregion
 
-		# region My_ Values Premise
+		#region My_ Values Premise
 
 		/// <summary>
 		/// <see cref="clsCustomer.my_CustomerId">Id</see> of
@@ -2318,7 +2680,7 @@ namespace Keyholders
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Premise_ProductId"));
 		}
 
-		
+
 		/// <summary>
 		/// <see cref="clsCompanyType.my_CompanyTypeId">Id</see> of
 		/// <see cref="clsCompanyType">CompanyType</see>
@@ -2330,7 +2692,7 @@ namespace Keyholders
 		public int my_Premise_CompanyTypeId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Premise_CompanyTypeId"));
-		}		
+		}
 
 		/// <summary>
 		/// <see cref="clsPremise.my_PremiseNumber">Number</see> of
@@ -2436,8 +2798,8 @@ namespace Keyholders
 		{
 			return localRecords.FieldByName(rowNum, "Premise_DateSubscriptionExpires");
 		}
-		
-		
+
+
 		/// <summary>
 		/// <see cref="clsPremise.my_DateNextSubscriptionDueToBeInvoiced">Date Next Subscription is due to be invoiced</see> for
 		/// <see cref="clsPremise">Premise</see>
@@ -2561,7 +2923,7 @@ namespace Keyholders
 			return localRecords.FieldByName(rowNum, "Customer_CustomerType");
 		}
 
-		
+
 		/// <summary>
 		/// <see cref="clsCustomer.my_CompanyName">Company Name</see> of
 		/// <see cref="clsCustomer">Customer</see>
@@ -2602,7 +2964,7 @@ namespace Keyholders
 			return localRecords.FieldByName(rowNum, "Customer_Title");
 		}
 
-				
+
 		/// <summary>
 		/// <see cref="clsCustomer.my_FirstName">First Name</see> of
 		/// <see cref="clsCustomer">Customer</see>
@@ -2673,7 +3035,7 @@ namespace Keyholders
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Customer_CountryId"));
 		}
 
-		
+
 		/// <summary>
 		/// <see cref="clsCustomer.my_OpeningBalance">Opening Balance</see> of
 		/// <see cref="clsCustomer">Customer</see>
@@ -2806,7 +3168,7 @@ namespace Keyholders
 		{
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Customer_TotalItemCost"));
 		}
-		
+
 		/// <summary>
 		/// Total Tax Cost of all Taxs bought by this Customer
 		/// </summary>
@@ -2905,7 +3267,7 @@ namespace Keyholders
 		{
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Customer_CurrentBalance"));
 		}
-		
+
 		/// <summary>
 		/// Customer's Available Credit; i.e. the sum total of all of this customer's
 		/// <see cref="clsTransaction">Transaction</see>s, 
@@ -2985,7 +3347,7 @@ namespace Keyholders
 		{
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Customer_InvoiceCurrentBalance"));
 		}
-		
+
 		/// <summary>
 		/// Customer's Invoice Total Purchases; i.e. the sum total of all of this customer's negative
 		/// <see cref="clsTransaction">Transaction</see>s. 
@@ -3025,445 +3387,416 @@ namespace Keyholders
 
 		#endregion
 
-		# region My_ Values Order
+		#region My_ Values Order
 
-
-		/// <summary>
-		/// <see cref="clsCustomer.my_CustomerId">CustomerId</see> of 
-		/// <see cref="clsCustomer">Customer</see>
-		/// Associated with this Order</summary>
+		/// <summary>OrderId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsCustomer.my_CustomerId">Id</see> 
-		/// of <see cref="clsCustomer">Customer</see> 
-		/// for this Order</returns>	
+		/// <returns>OrderId</returns>
+		public int my_Order_OrderId(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_OrderId"));
+		}
+
+
+		/// <summary>CustomerId</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>CustomerId</returns>
 		public int my_Order_CustomerId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_CustomerId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsPerson.my_PersonId">PersonId</see> of 
-		/// <see cref="clsPerson">Person</see>
-		/// Associated with this Order</summary>
+
+		/// <summary>PersonId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsPerson.my_PersonId">Id</see> 
-		/// of <see cref="clsPerson">Person</see> 
-		/// for this Order</returns>	
+		/// <returns>PersonId</returns>
 		public int my_Order_PersonId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_PersonId"));
 		}
-		
-		/// <summary>
-		/// <see cref="clsPaymentMethodType.my_PaymentMethodTypeId">PaymentMethodTypeId</see> of 
-		/// <see cref="clsPaymentMethodType">PaymentMethodType</see>
-		/// Associated with this Order</summary>
+
+
+		/// <summary>PaymentMethodTypeId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsPaymentMethodType.my_PaymentMethodTypeId">Id</see> 
-		/// of <see cref="clsPaymentMethodType">PaymentMethodType</see> 
-		/// for this Order</returns>	
+		/// <returns>PaymentMethodTypeId</returns>
 		public int my_Order_PaymentMethodTypeId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_PaymentMethodTypeId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsCustomerGroup.my_CustomerGroupId">CustomerGroupId</see> of 
-		/// <see cref="clsCustomerGroup">CustomerGroup</see>
-		/// Associated with this Order</summary>
+
+		/// <summary>CustomerGroupId</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsCustomerGroup.my_CustomerGroupId">Id</see> 
-		/// of <see cref="clsCustomerGroup">CustomerGroup</see> 
-		/// for this Order</returns>	
+		/// <returns>CustomerGroupId</returns>
 		public int my_Order_CustomerGroupId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_CustomerGroupId"));
 		}
-		
-		/// <summary>
-		/// <see cref="clsOrder.my_OrderNum">Customer's Order Number</see> for this 
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+
+		/// <summary>OrderNum</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_OrderNum">Customer's Order Number</see> for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>	
+		/// <returns>OrderNum</returns>
 		public string my_Order_OrderNum(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_OrderNum");
 		}
-		
-		/// <summary>
-		/// <see cref="clsOrder.my_CustomerType">Type</see> of Customer for this
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+
+		/// <summary>CustomerType</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_CustomerType">Type</see> of Customer for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
-		public string my_Order_CustomerType(int rowNum)
+		/// <returns>CustomerType</returns>
+		public int my_Order_CustomerType(int rowNum)
 		{
-			return localRecords.FieldByName(rowNum, "Order_CustomerType");
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_CustomerType"));
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_FullName">Full Name</see> of Customer for this
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>FullName</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_FullName">Full Name</see> of Customer for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>FullName</returns>
 		public string my_Order_FullName(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_FullName");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_Title">Person's Title</see> for this 
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>Title</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_Title">Person's Title</see> for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>	
+		/// <returns>Title</returns>
 		public string my_Order_Title(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_Title");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_FirstName">Person's First Name</see> for this 
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>FirstName</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_FirstName">Person's First Name</see> for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>	
+		/// <returns>FirstName</returns>
 		public string my_Order_FirstName(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_FirstName");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_LastName">Person's Last Name</see> for this 
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>LastName</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_LastName">Person's Last Name</see> for this
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>	
+		/// <returns>LastName</returns>
 		public string my_Order_LastName(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_LastName");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickPostalAddress">Quick Postal Address</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>QuickPostalAddress</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickPostalAddress">Quick Postal Address</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickPostalAddress</returns>
 		public string my_Order_QuickPostalAddress(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_QuickPostalAddress");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickDaytimePhone">Quick Daytime Phone</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>QuickDaytimePhone</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickDaytimePhone">Quick Daytime Phone</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickDaytimePhone</returns>
 		public string my_Order_QuickDaytimePhone(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_QuickDaytimePhone");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickDaytimeFax">Quick Daytime Fax</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>QuickDaytimeFax</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickDaytimeFax">Quick Daytime Fax</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickDaytimeFax</returns>
 		public string my_Order_QuickDaytimeFax(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_QuickDaytimeFax");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickAfterHoursPhone">Quick After Hours Phone</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>QuickAfterHoursPhone</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickAfterHoursPhone">Quick After Hours Phone</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickAfterHoursPhone</returns>
 		public string my_Order_QuickAfterHoursPhone(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_QuickAfterHoursPhone");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickAfterHoursFax">Quick After Hours Fax</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>QuickAfterHoursFax</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickAfterHoursFax">Quick After Hours Fax</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickAfterHoursFax</returns>
 		public string my_Order_QuickAfterHoursFax(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_QuickAfterHoursFax");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_QuickMobilePhone">Quick Mobile Phone</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>QuickMobilePhone</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_QuickMobilePhone">Quick Mobile Phone</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>QuickMobilePhone</returns>
 		public string my_Order_QuickMobilePhone(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_QuickMobilePhone");
 		}
 
-		/// <summary>
-		/// <see cref="clsCountry.my_CountryId">CountryId</see> of 
-		/// <see cref="clsCountry">Country</see></summary>
-		/// <param Long="rowNum">Row number for Data</param>
-		/// <returns><see cref="clsCountry.my_CountryId">CountryId</see> 
-		/// of Associated <see cref="clsCountry">Country</see> 
-		/// for this Order</returns>
+
+		/// <summary>CountryId</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>CountryId</returns>
 		public int my_Order_CountryId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_CountryId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_Email">Email Address</see> for
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>Email</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_Email">Email Address</see> for 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>Email</returns>
 		public string my_Order_Email(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_Email");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_OrderSubmitted">Submission Status</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>OrderSubmitted</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_OrderSubmitted">Submission Status</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>OrderSubmitted</returns>
 		public int my_Order_OrderSubmitted(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_OrderSubmitted"));
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_OrderPaid">Paid Status</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>OrderPaid</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_OrderPaid">Paid Status</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>OrderPaid</returns>
 		public int my_Order_OrderPaid(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_OrderPaid"));
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_OrderCreatedMechanism">Mechanism</see> by which this 
-		/// <see cref="clsOrder">Order</see> was Created
-		/// </summary>
+
+		/// <summary>OrderCreatedMechanism</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns>
-		/// <see cref="clsOrder.my_OrderCreatedMechanism">Mechanism</see> by which this 
-		/// <see cref="clsOrder">Order</see> was Created
-		/// </returns>
+		/// <returns>OrderCreatedMechanism</returns>
 		public int my_Order_OrderCreatedMechanism(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_OrderCreatedMechanism"));
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrderStatus.my_OrderStatusId">OrderStatusId</see> of 
-		/// <see cref="clsOrderStatus">OrderStatus</see></summary>
-		/// <param Long="rowNum">Row number for Data</param>
-		/// <returns><see cref="clsOrderStatus.my_OrderStatusId">OrderStatusId</see> 
-		/// of Associated <see cref="clsOrderStatus">OrderStatus</see> 
-		/// for this Order</returns>
+		/// <summary>OrderStatusId</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>OrderStatusId</returns>
 		public int my_Order_OrderStatusId(int rowNum)
 		{
 			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_OrderStatusId"));
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_SupplierComment">Supplier's Comments</see> about
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>SupplierComment</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_SupplierComment">Supplier's Comments</see> about 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>SupplierComment</returns>
 		public string my_Order_SupplierComment(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_SupplierComment");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateCreated">Date of Creation (Client Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>DateCreated</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateCreated">Date of Creation (Client Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateCreated</returns>
 		public string my_Order_DateCreated(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_DateCreated");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateCreatedUtc">Date of Creation (UTC Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateCreatedUtc</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateCreatedUtc">Date of Creation (UTC Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateCreatedUtc</returns>
 		public string my_Order_DateCreatedUtc(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_DateCreatedUtc");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateSubmitted">Date of Submission (Client Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateSubmitted</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateSubmitted">Date of Submission (Client Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateSubmitted</returns>
 		public string my_Order_DateSubmitted(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_DateSubmitted");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateSubmittedUtc">Date of Submission (UTC Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateSubmittedUtc</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateSubmittedUtc">Date of Submission (UTC Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateSubmittedUtc</returns>
 		public string my_Order_DateSubmittedUtc(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_DateSubmittedUtc");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateProcessed">Date of Processing (Client Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>DateProcessed</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateProcessed">Date of Processing (Client Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateProcessed</returns>
 		public string my_Order_DateProcessed(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_DateProcessed");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateProcessedUtc">Date of Processing (UTC Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateProcessedUtc</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateProcessedUtc">Date of Processing (UTC Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateProcessedUtc</returns>
 		public string my_Order_DateProcessedUtc(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_DateProcessedUtc");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateShipped">Date of Shipping (Client Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateShipped</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateShipped">Date of Shipping (Client Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateShipped</returns>
 		public string my_Order_DateShipped(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_DateShipped");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_DateShippedUtc">Date of Shipping (UTC Time)</see> of
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>DateShippedUtc</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_DateShippedUtc">Date of Shipping (UTC Time)</see> of 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>DateShippedUtc</returns>
 		public string my_Order_DateShippedUtc(int rowNum)
 		{
 			return localRecords.FieldByName(rowNum, "Order_DateShippedUtc");
 		}
 
 
-		/// <summary>
-		/// <see cref="clsOrder.my_TaxAppliedToOrder">Whether Tax was applied</see> to this
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+		/// <summary>DateDue</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_TaxAppliedToOrder">Whether Tax was applied</see> to this 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
-		public int my_Order_TaxAppliedToOrder(int rowNum)
+		/// <returns>DateDue</returns>
+		public string my_Order_DateDue(int rowNum)
 		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_TaxAppliedToOrder"));
+			return localRecords.FieldByName(rowNum, "Order_DateDue");
 		}
 
-		/// <summary>
-		/// <see cref="clsOrder.my_TaxRateAtTimeOfOrder">Tax Rate at time</see> of this
-		/// <see cref="clsOrder">Order</see>
-		/// </summary>
+
+		/// <summary>InvoiceRequested</summary>
 		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsOrder.my_TaxRateAtTimeOfOrder">Tax Rate at time</see> of this 
-		/// <see cref="clsOrder">Order</see> 
-		/// </returns>
+		/// <returns>InvoiceRequested</returns>
+		public int my_Order_InvoiceRequested(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_InvoiceRequested"));
+		}
+
+
+		/// <summary>DateInvoiceLastPrinted</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>DateInvoiceLastPrinted</returns>
+		public string my_Order_DateInvoiceLastPrinted(int rowNum)
+		{
+			return localRecords.FieldByName(rowNum, "Order_DateInvoiceLastPrinted");
+		}
+
+
+		/// <summary>TaxAppliedToOrder</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>TaxAppliedToOrder</returns>
+		public decimal my_Order_TaxAppliedToOrder(int rowNum)
+		{
+			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_TaxAppliedToOrder"));
+		}
+
+
+		/// <summary>TaxRateAtTimeOfOrder</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>TaxRateAtTimeOfOrder</returns>
 		public decimal my_Order_TaxRateAtTimeOfOrder(int rowNum)
 		{
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_TaxRateAtTimeOfOrder"));
 		}
 
+
+		///// <summary>TaxCost</summary>
+		///// <param name="rowNum">Record Index</param>
+		///// <returns>TaxCost</returns>
+		//public decimal my_Order_TaxCost(int rowNum)
+		//{
+		//	return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_TaxCost"));
+		//}
+
+
+		///// <summary>FreightCost</summary>
+		///// <param name="rowNum">Record Index</param>
+		///// <returns>FreightCost</returns>
+		//public decimal my_Order_FreightCost(int rowNum)
+		//{
+		//	return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_FreightCost"));
+		//}
+
+
+		///// <summary>Total</summary>
+		///// <param name="rowNum">Record Index</param>
+		///// <returns>Total</returns>
+		//public decimal my_Order_Total(int rowNum)
+		//{
+		//	return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_Total"));
+		//}
+
+
+		/// <summary>TotalItemWeight</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>TotalItemWeight</returns>
+		public decimal my_Order_TotalItemWeight(int rowNum)
+		{
+			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_TotalItemWeight"));
+		}
+
+
+		/// <summary>TotalItemCost</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>TotalItemCost</returns>
+		public decimal my_Order_TotalItemCost(int rowNum)
+		{
+			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_TotalItemCost"));
+		}
+
+
+		/// <summary>TotalItemFreightCost</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>TotalItemFreightCost</returns>
+		public decimal my_Order_TotalItemFreightCost(int rowNum)
+		{
+			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_TotalItemFreightCost"));
+		}
+
+
+		/// <summary>IsInvoiceOrder</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>IsInvoiceOrder</returns>
+		public int my_Order_IsInvoiceOrder(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_IsInvoiceOrder"));
+		}
+
+
+		/// <summary>NumItems</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>NumItems</returns>
+		public int my_Order_NumItems(int rowNum)
+		{
+			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Order_NumItems"));
+		}
+
+
+		#endregion
+
+		#region My_ Values Order
 
 		/// <summary>
 		/// Tax Cost of Order. Note this is negative if the system setting is to show
@@ -3477,13 +3810,13 @@ namespace Keyholders
 			decimal Tax = Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_TaxCost"));
 
 			if (priceShownIncludesLocalTaxRate && Tax == Convert.ToDecimal(0))
-				return (Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_Total")) 
+				return (Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_Total"))
 					+ Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_FreightCost")))
 					* Convert.ToDecimal(Convert.ToDecimal(1) - (Convert.ToDecimal(localTaxRate)));
 			else
 				return Tax;
 		}
-				
+
 		/// <summary>
 		/// Freight Cost of Order
 		/// </summary>
@@ -3492,12 +3825,12 @@ namespace Keyholders
 		public decimal my_Order_FreightCost(int rowNum)
 		{
 			decimal baseCost = Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_FreightCost"));
-			
+
 			if (priceShownIncludesLocalTaxRate)
 				return baseCost * localTaxRate;
 			else
 				return baseCost;
-		}		
+		}
 
 		/// <summary>
 		/// Freight Cost of Order (Excluding Tax)
@@ -3520,9 +3853,17 @@ namespace Keyholders
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_Total"));
 		}
 
-		
+
+
+		/// <summary>TotalItemCostExcludingTax</summary>
+		/// <param name="rowNum">Record Index</param>
+		/// <returns>TotalItemCostExcludingTax</returns>
+		public decimal my_Order_TotalItemCostExcludingTax(int rowNum)
+		{
+			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Order_TotalItemCost"));
+		}
+
+
 		#endregion
-
-
 	}
 }

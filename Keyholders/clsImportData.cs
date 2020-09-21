@@ -2585,7 +2585,7 @@ namespace Keyholders
 					//Need to find the main contact; this can be the first billing contact we find
 				
 					//For each customer, create a single thisOrder
-					thisOrder.Add(mainContactId, 
+					thisOrder.AddEasy(mainContactId, 
 						thisCustomerId, 
 						PremiseNumber, 
 						orderCreatedMechanism_byVendorAutomatically(), 
@@ -3045,11 +3045,12 @@ namespace Keyholders
 
 		#region DoCorrespondence
 
-		/// <summary>
-		/// DoCorrespondence
-		/// </summary>
+		/// <summary>DoCorrespondence</summary>
 		/// <param name="thisDate">thisDate</param>
-		public void DoCorrespondence(DateTime thisDate)
+		/// <param name="SeedInvoiceNumber">SeedInvoiceNumber</param>
+		/// <param name="LogFolder">LogFolder</param>
+		/// <param name="fileToExportTo">fileToExportTo</param>
+		public void DoCorrespondence(DateTime thisDate, int SeedInvoiceNumber, string LogFolder, string fileToExportTo)
 		{
 			#region Create a list of Unsubmitted Orders
 			clsPremise thisPremise = new clsPremise(thisDbType, localRecords.dbConnection);
@@ -3069,7 +3070,8 @@ namespace Keyholders
 			int numImminentRenewals = thisItem.GetUnsubmittedOrders();
 
 			thisOrder.SubmitAllUnsubmittedOrders(
-				thisOrder.localRecords.DBDateTime(DateTime.Now));
+				thisOrder.localRecords.DBDateTime(DateTime.Now),
+				SeedInvoiceNumber, LogFolder, fileToExportTo);
 			#endregion
 
 			#region Mark Statement Required and Details Update Required where necessary
@@ -3118,20 +3120,20 @@ namespace Keyholders
 				thisPersonId = thisPersonPremiseRole.my_PersonId(counter);
 				thisCustomerId = thisPersonPremiseRole.my_Person_CustomerId(counter);
 
-				bool InvoiceSent = false;
-				bool InvoiceRequired = false;
+                bool InvoiceSent = false;
+                bool InvoiceRequired = false;
 				bool StatementRequired = false;
-				bool StatementSent = false;
+                bool StatementSent = false;
 
-				bool CoverPageSent = false;
-				bool PremisesSent = false;
-				bool PeopleSent = false;
-				bool ServiceProvidersSent = false;
-				
-				int isEmail = 0;
-				string EmailSnail = "SnailMail";
+                bool CoverPageSent = false;
+                bool PremisesSent = false;
+                bool PeopleSent = false;
+                bool ServiceProvidersSent = false;
 
-				bool isRepeat = true;
+                int isEmail = 0;
+                string EmailSnail = "SnailMail";
+
+                bool isRepeat = true;
 
 				if (oldPersonId != thisPersonId || oldCustomerId != thisCustomerId || oldPremiseId != thisPremiseId)
 				{
@@ -4912,16 +4914,6 @@ namespace Keyholders
 									ArrayList theseAttachments = new ArrayList();
 
 									theseAttachments.Add(OutputPath + thisFileName);
-
-//									SendEmail(thisEmailAddress,
-//										"admin@alertus.co.nz",
-//										"admin@alertus.co.nz",
-//										"Credit Note from Alertus",
-//										(int) System.Net.Mail.MailPriority.Low,
-//										(int) System.Net.Mail.MailFormat.Html,
-//										"",
-//										"Dev1",
-//										theseAttachments);
 
 									SendEmail(thisEmailAddress,
 										"admin@alertus.co.nz",

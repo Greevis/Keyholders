@@ -461,9 +461,11 @@ namespace Keyholders
 
 		#region Mark Correspondence as sent
 
-		/// <summary>
-		/// Mark all pending correspondence as sent
-		/// </summary>
+		#region MarkCorrespondenceAsSentForCustomerId
+
+		/// <summary>MarkCorrespondenceAsSentForCustomerId</summary>
+		/// <param name="RenewalDate">RenewalDate</param>
+		/// <param name="CustomerId">CustomerId</param>
 		public void MarkCorrespondenceAsSentForCustomerId(string RenewalDate, int CustomerId)
 		{
 
@@ -522,6 +524,30 @@ namespace Keyholders
 			localRecords.GetRecords(thisSql);
 
 		}
+
+		#endregion
+
+		#region MarkCorrespondenceAsSentForPremiseId
+
+		/// <summary>MarkCorrespondenceAsSentForPremiseId</summary>
+		/// <param name="RenewalDate">RenewalDate</param>
+		/// <param name="PremiseId">PremiseId</param>
+		public void MarkCorrespondenceAsSentForPremiseId(string RenewalDate, int PremiseId)
+		{
+
+			DateTime RenewalDateTime = Convert.ToDateTime(RenewalDate);
+			RenewalDate = localRecords.DBDateTime(RenewalDateTime);
+			string CurrentDate = localRecords.DBDateTime(DateTime.Now);
+
+			string thisSql = "Update tblPremise set DateLastDetailsUpdate = '" + RenewalDate + "', DetailsUpdateRequired = 0" + crLf
+				+ "where Archive = 0 and DetailsUpdateRequired = 1" + crLf
+				+ "	and PremiseId = " + PremiseId.ToString()
+				;
+
+			localRecords.GetRecords(thisSql);
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Mark all pending correspondence as sent
@@ -2946,82 +2972,82 @@ namespace Keyholders
 			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Item_FreightCost"));
 		}
 
-		/// <summary>
-		/// Whether this 
-		/// <see cref="clsItem">Item</see> uses
-		/// <see cref="clsItem.my_UseStockControl"> Stock Control</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>Whether this 
-		/// <see cref="clsItem">Item</see> uses 
-		/// <see cref="clsItem.my_UseStockControl"> Stock Control</see></returns>
-		public int my_Item_UseStockControl(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Item_UseStockControl"));
-		}
+		///// <summary>
+		///// Whether this 
+		///// <see cref="clsItem">Item</see> uses
+		///// <see cref="clsItem.my_UseStockControl"> Stock Control</see>
+		///// </summary>
+		///// <param name="rowNum">Record Index</param>
+		///// <returns>Whether this 
+		///// <see cref="clsItem">Item</see> uses 
+		///// <see cref="clsItem.my_UseStockControl"> Stock Control</see></returns>
+		//public int my_Item_UseStockControl(int rowNum)
+		//{
+		//	return Convert.ToInt32(localRecords.FieldByName(rowNum, "Item_UseStockControl"));
+		//}
 
-		/// <summary>
-		/// <see cref="clsItem.my_QuantityAvailable">Quantity Available</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_QuantityAvailable">Quantity Available</see> of 
-		/// <see cref="clsItem">Item</see></returns>
-		public decimal my_Item_QuantityAvailable(int rowNum)
-		{
-			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Item_QuantityAvailable"));
-		}
+		///// <summary>
+		///// <see cref="clsItem.my_QuantityAvailable">Quantity Available</see> of 
+		///// <see cref="clsItem">Item</see>
+		///// </summary>
+		///// <param name="rowNum">Record Index</param>
+		///// <returns><see cref="clsItem.my_QuantityAvailable">Quantity Available</see> of 
+		///// <see cref="clsItem">Item</see></returns>
+		//public decimal my_Item_QuantityAvailable(int rowNum)
+		//{
+		//	return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Item_QuantityAvailable"));
+		//}
 
-		/// <summary>
-		/// <see cref="clsItem.my_MaxQuantity">Maximum Quantity</see> of 
-		/// <see cref="clsItem">Item</see> purchasable at one time
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_MaxQuantity">Maximum Quantity</see> of 
-		/// <see cref="clsItem">Item</see>  purchasable at one time</returns>
-		public decimal my_Item_MaxQuantity(int rowNum)
-		{
-			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Item_MaxQuantity"));
-		}
+		///// <summary>
+		///// <see cref="clsItem.my_MaxQuantity">Maximum Quantity</see> of 
+		///// <see cref="clsItem">Item</see> purchasable at one time
+		///// </summary>
+		///// <param name="rowNum">Record Index</param>
+		///// <returns><see cref="clsItem.my_MaxQuantity">Maximum Quantity</see> of 
+		///// <see cref="clsItem">Item</see>  purchasable at one time</returns>
+		//public decimal my_Item_MaxQuantity(int rowNum)
+		//{
+		//	return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Item_MaxQuantity"));
+		//}
 
-		/// <summary>
-		/// <see cref="clsItem.my_MaxAllowable">Maximum Allowable</see> Quantity of 
-		/// <see cref="clsItem">Item</see> purchasable at this time 
-		/// (uses MaxQuantity, UsesStockControl and QuantityAvailable to calculate this)
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_MaxAllowable">Maximum Allowable</see> of 
-		/// <see cref="clsItem">Item</see>  purchasable at this time</returns>
-		public decimal my_Item_MaxAllowable(int rowNum)
-		{
-			return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Item_MaxAllowable"));
-		}
+		///// <summary>
+		///// <see cref="clsItem.my_MaxAllowable">Maximum Allowable</see> Quantity of 
+		///// <see cref="clsItem">Item</see> purchasable at this time 
+		///// (uses MaxQuantity, UsesStockControl and QuantityAvailable to calculate this)
+		///// </summary>
+		///// <param name="rowNum">Record Index</param>
+		///// <returns><see cref="clsItem.my_MaxAllowable">Maximum Allowable</see> of 
+		///// <see cref="clsItem">Item</see>  purchasable at this time</returns>
+		//public decimal my_Item_MaxAllowable(int rowNum)
+		//{
+		//	return Convert.ToDecimal(localRecords.FieldByName(rowNum, "Item_MaxAllowable"));
+		//}
 
-		/// <summary>
-		/// Whether this 
-		/// <see cref="clsItem">Item</see>  is
-		/// <see cref="clsItem.my_WholeNumbersOnly">discrete or continuous</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns>Whether this 
-		/// <see cref="clsItem">Item</see>  is 
-		/// <see cref="clsItem.my_WholeNumbersOnly">discrete or continuous</see></returns>
-		public int my_Item_WholeNumbersOnly(int rowNum)
-		{
-			return Convert.ToInt32(localRecords.FieldByName(rowNum, "Item_WholeNumbersOnly"));
-		}
+		///// <summary>
+		///// Whether this 
+		///// <see cref="clsItem">Item</see>  is
+		///// <see cref="clsItem.my_WholeNumbersOnly">discrete or continuous</see>
+		///// </summary>
+		///// <param name="rowNum">Record Index</param>
+		///// <returns>Whether this 
+		///// <see cref="clsItem">Item</see>  is 
+		///// <see cref="clsItem.my_WholeNumbersOnly">discrete or continuous</see></returns>
+		//public int my_Item_WholeNumbersOnly(int rowNum)
+		//{
+		//	return Convert.ToInt32(localRecords.FieldByName(rowNum, "Item_WholeNumbersOnly"));
+		//}
 
-		/// <summary>
-		/// <see cref="clsItem.my_QuantityDescription">Quantity Description</see> of 
-		/// <see cref="clsItem">Item</see>
-		/// </summary>
-		/// <param name="rowNum">Record Index</param>
-		/// <returns><see cref="clsItem.my_QuantityDescription">Quantity Description</see> of 
-		/// <see cref="clsItem">Item</see></returns>
-		public string my_Item_QuantityDescription(int rowNum)
-		{
-			return localRecords.FieldByName(rowNum, "Item_QuantityDescription");
-		}
+		///// <summary>
+		///// <see cref="clsItem.my_QuantityDescription">Quantity Description</see> of 
+		///// <see cref="clsItem">Item</see>
+		///// </summary>
+		///// <param name="rowNum">Record Index</param>
+		///// <returns><see cref="clsItem.my_QuantityDescription">Quantity Description</see> of 
+		///// <see cref="clsItem">Item</see></returns>
+		//public string my_Item_QuantityDescription(int rowNum)
+		//{
+		//	return localRecords.FieldByName(rowNum, "Item_QuantityDescription");
+		//}
 
 		/// <summary>
 		/// <see cref="clsItem.my_MaxKeyholdersPerPremise">Maximum number of Keyholders per Premise</see>

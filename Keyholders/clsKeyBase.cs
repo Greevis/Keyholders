@@ -3385,56 +3385,17 @@ namespace Keyholders
 			return thisQ;
 		}
 
-		/// <summary>
-		/// Returns the Query Part allowing the information about the Item to be retrieved
-		/// as part of a query
-		/// </summary>
+		#region ItemQueryPart
+
+		/// <summary>Returns the Query Part allowing the information about the Item to be retrieved as part of a query</summary>
 		/// <returns>clsQueryPart</returns>
 		public clsQueryPart ItemQueryPart()
 		{
-			clsQueryPart ItemQ = new clsQueryPart();
-
-			ItemQ.AddSelectColumn("tblItem.OrderId as Item_OrderId");
-			ItemQ.AddSelectColumn("tblItem.ProductId as Item_ProductId");
-			ItemQ.AddSelectColumn("tblItem.PremiseId as Item_PremiseId");
-			ItemQ.AddSelectColumn("tblItem.Quantity as Item_Quantity");
-			ItemQ.AddSelectColumn("tblItem.ItemName as Item_ItemName");
-			ItemQ.AddSelectColumn("tblItem.ItemCode as Item_ItemCode");
-			ItemQ.AddSelectColumn("tblItem.ShortDescription as Item_ShortDescription");
-			ItemQ.AddSelectColumn("tblItem.LongDescription as Item_LongDescription");
-			ItemQ.AddSelectColumn("tblItem.Cost as Item_Cost");
-			ItemQ.AddSelectColumn("tblItem.Weight as Item_Weight");
-			ItemQ.AddSelectColumn("tblItem.MaxKeyholdersPerPremise as Item_MaxKeyholdersPerPremise");
-			ItemQ.AddSelectColumn("tblItem.MaxAssetRegisterAssets as Item_MaxAssetRegisterAssets");
-			ItemQ.AddSelectColumn("tblItem.MaxAssetRegisterStorage as Item_MaxAssetRegisterStorage");
-			ItemQ.AddSelectColumn("tblItem.MaxDocumentSafeDocuments as Item_MaxDocumentSafeDocuments");
-			ItemQ.AddSelectColumn("tblItem.MaxDocumentSafeStorage as Item_MaxDocumentSafeStorage");
-			ItemQ.AddSelectColumn("tblItem.RequiresPremiseForActivation as Item_RequiresPremiseForActivation");
-			ItemQ.AddSelectColumn("tblItem.DateActivation as Item_DateActivation");
-			ItemQ.AddSelectColumn("tblItem.DateActivationUtc as Item_DateActivationUtc");
-			ItemQ.AddSelectColumn("tblItem.DateExpiry as Item_DateExpiry");
-			ItemQ.AddSelectColumn("tblItem.DateExpiryUtc as Item_DateExpiryUtc");
-			ItemQ.AddSelectColumn("tblItem.DurationNumUnits as Item_DurationNumUnits");
-			ItemQ.AddSelectColumn("tblItem.DurationUnitId as Item_DurationUnitId");
-			ItemQ.AddSelectColumn("tblItem.FreightCost as Item_FreightCost");
-			
-			return ItemQ;
-		}
-
-
-		/// <summary>
-		/// Returns the Query Part allowing the information about the Order to be retrieved
-		/// as part of a query
-		/// </summary>
-		/// <returns>clsQueryPart</returns>
-		public clsQueryPart OrderQueryPart()
-		{
 			clsQueryPart thisQ = new clsQueryPart();
-			
-			string stem = "";
-			string table = "tblOrder";
-			string pk = "OrderId";
 
+			string stem = "";
+			string table = "tblItem";
+			string pk = "ItemId";
 			thisQ.AddFromTable(table);
 
 			if (thisTable == table)
@@ -3443,36 +3404,118 @@ namespace Keyholders
 			}
 			else
 			{
-				if (stem == "")
-					stem = "Order_";
-				
-				thisQ.AddJoin(thisTable + "." + pk +" = " + table + "." + pk);
+				stem = "Item_";
+
+				thisQ.AddSelectColumn(AddStem(table, stem, pk));
+
+				thisQ.AddJoin(thisTable + "." + pk + " = " + table + "." + pk);
 			}
 
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "OrderId"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "ProductId"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "PremiseId"));
+
+			thisQ.AddSelectColumn(AddStem(table, stem, "Quantity"));
+
+			thisQ.AddSelectColumn(AddStem(table, stem, "ItemName"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "ItemCode"));
+
+			thisQ.AddSelectColumn(AddStem(table, stem, "ShortDescription"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "LongDescription"));
+
+			thisQ.AddSelectColumn(AddStem(table, stem, "Cost"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "Weight"));
+
+			thisQ.AddSelectColumn(AddStem(table, stem, "MaxKeyholdersPerPremise"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "MaxAssetRegisterAssets"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "MaxAssetRegisterStorage"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "MaxDocumentSafeDocuments"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "MaxDocumentSafeStorage"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "RequiresPremiseForActivation"));
+
+			thisQ.AddSelectColumn(AddStem(table, stem, "DateActivation"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "DateActivationUtc"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "DateExpiry"));
+			thisQ.AddSelectColumn(AddStem(table, stem, "DateExpiryUtc"));
+
+			thisQ.AddSelectColumn(AddStem(table, stem, "DurationNumUnits"));
+
+			thisQ.AddSelectColumn(AddStem(table, stem, "DurationUnitId"));
+
+			thisQ.AddSelectColumn(AddStem(table, stem, "FreightCost"));
+
+
+			thisQ.AddFromTable("");
+
+			return thisQ;
+		}
+
+		#endregion
+
+		#region OrderQueryPart
+
+		/// <summary>Returns the Query Part allowing the information about the Order to be retrieved as part of a query</summary>
+		/// <returns>clsQueryPart</returns>
+		public clsQueryPart OrderQueryPart()
+		{
+			clsQueryPart thisQ = new clsQueryPart();
+
+			string stem = "";
+			string table = "tblOrder";
+			string pk = "OrderId";
+			thisQ.AddFromTable(table);
+
+			if (thisTable == table)
+			{
+				thisQ.AddSelectColumn(AddStem(table, stem, pk));
+			}
+			else
+			{
+				stem = "Order_";
+
+				thisQ.AddSelectColumn(AddStem(table, stem, pk));
+
+				thisQ.AddJoin(thisTable + "." + pk + " = " + table + "." + pk);
+			}
+
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "CustomerId"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "PersonId"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "PaymentMethodTypeId"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "CustomerGroupId"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "OrderNum"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "CustomerType"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "FullName"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "Title"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "FirstName"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "LastName"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "QuickPostalAddress"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "QuickDaytimePhone"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "QuickDaytimeFax"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "QuickAfterHoursPhone"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "QuickAfterHoursFax"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "QuickMobilePhone"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "CountryId"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "Email"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "OrderSubmitted"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "OrderPaid"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "OrderCreatedMechanism"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "OrderStatusId"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "SupplierComment"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "DateCreated"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "DateCreatedUtc"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "DateSubmitted"));
@@ -3482,8 +3525,11 @@ namespace Keyholders
 			thisQ.AddSelectColumn(AddStem(table, stem, "DateShipped"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "DateShippedUtc"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "DateDue"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "InvoiceRequested"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "DateInvoiceLastPrinted"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "TaxAppliedToOrder"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "TaxRateAtTimeOfOrder"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "TaxCost"));
@@ -3492,13 +3538,17 @@ namespace Keyholders
 			thisQ.AddSelectColumn(AddStem(table, stem, "TotalItemWeight"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "TotalItemCost"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "TotalItemFreightCost"));
+
 			thisQ.AddSelectColumn(AddStem(table, stem, "IsInvoiceOrder"));
 			thisQ.AddSelectColumn(AddStem(table, stem, "NumItems"));
-			
+
+
+			thisQ.AddFromTable("");
+
 			return thisQ;
-		}	
+		}
 
-
+		#endregion
 
 		/// <summary>
 		/// Returns the Query Part allowing the information about the OrderStatus  to be retrieved
@@ -6131,6 +6181,75 @@ namespace Keyholders
 		}
 
 		#endregion
+
+		#endregion
+
+		#region isNumerical
+
+		/// <summary>
+		/// Returns whether a string is Numerical or not
+		/// </summary>
+		/// <param name="potentialNumber">potentialNumber</param>
+		/// <returns>whether a string is Numerical or not</returns>
+		public bool isNumerical(string potentialNumber)
+		{
+			return isNumerical(potentialNumber, false, true);
+		}
+
+		/// <summary>Returns whether a string is Numerical or not</summary>
+		/// <param name="potentialNumber">potentialNumber</param>
+		/// <param name="AllowDecimals">AllowDecimals</param>
+		/// <returns>whether a string is Numerical or not</returns>
+		public bool isNumerical(string potentialNumber, bool AllowDecimals)
+		{
+			return isNumerical(potentialNumber, AllowDecimals, true);
+		}
+
+		/// <summary>Returns whether a string is Numerical or not</summary>
+		/// <param name="potentialNumber">potentialNumber</param>
+		/// <param name="AllowDecimals">AllowDecimals</param>
+		/// <param name="AllowNegatives">AllowNegatives</param>
+		/// <returns>whether a string is Numerical or not</returns>
+		public bool isNumerical(string potentialNumber, bool AllowDecimals, bool AllowNegatives)
+		{
+			if (potentialNumber == "")
+				return false;
+
+			int numLen = potentialNumber.Length;
+			bool isNumeric = true;
+			for (int counter = 0; counter < numLen; counter++)
+			{
+				char thisChar = Convert.ToChar(potentialNumber.Substring(counter, 1));
+				int thisVal = (int)thisChar;
+
+				switch (thisVal)
+				{
+					case 45: //-
+						if (counter != 0 || !AllowNegatives)
+							isNumeric = false;
+						break;
+					case 46: //.
+						if (!AllowDecimals)
+							isNumeric = false;
+						break;
+					case 48: //'0'
+					case 49: //'1'
+					case 50: //'2'
+					case 51: //'3'
+					case 52: //'4'
+					case 53: //'5'
+					case 54: //'6'
+					case 55: //'7'
+					case 56: //'8'
+					case 57: //'9'
+						break;
+					default:
+						isNumeric = false;
+						break;
+				}
+			}
+			return isNumeric;
+		}
 
 		#endregion
 
