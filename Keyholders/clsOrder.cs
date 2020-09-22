@@ -1906,8 +1906,7 @@ namespace Keyholders
 
 				AccountOrderNumber = thisItem.my_Order_OrderNum(counter);
 
-				Reference =
-					"~" + AccountOrderNumber;
+				Reference = AccountOrderNumber;
 
 				InvoiceDate = DateTime.Now.ToShortDateString();
 				DueDate = Convert.ToDateTime(thisItem.my_Order_DateDue(counter)).ToShortDateString();
@@ -1916,43 +1915,20 @@ namespace Keyholders
 				TotalTax = "";
 				Total = "";
 
-				Description = thisItem.my_ShortDescription(counter);
-
-				//thisPropertyId = thisItem.my_Order_PropertyId(counter);
+				Description = thisItem.my_ShortDescription(counter).Trim();
 
 				thisProdcutId = thisItem.my_ProductId(counter);
 
 				dQuantity = thisItem.my_Quantity(counter);
 				Quantity = String.Format("{0:0.00}", dQuantity);
 
-				//NumPurchaseInstances = thisItem.my_NumPurchaseInstances(counter);
-
-				//if (thisProdcutId == 1)
-				//{
-				//	if (NumPurchaseInstances == 1)
-				//		Description += "; 1 Transaction";
-				//	else
-				//		Description += "; " + NumPurchaseInstances.ToString() + " Transactions";
-
-				//}
-
-				//ProductChargingFrequencyType = thisItem.my_Order_ProductChargingFrequencyType(counter);
-
 				UnitAmount = String.Format("{0:0.00}", thisItem.my_Order_TotalItemCostExcludingTax(counter) / dQuantity);
 
 				AccountCode = "";
 				TaxType = @"15% GST on Income";
 
-
-				//thisChargeType = (productChargingMechanismType)thisItem.my_Order_ProductChargingMechanismType(counter);
-
-				bool DDAccountNumberPresent = false;
-				bool CCAccountNumberPresent = false;
-
 				Currency = "NZD";
 				BrandingTheme = "";
-
-				//					thisCsvWriter[(int) thisChargeType].WriteFields(
 
 				thisCsvWriter.WriteFields(
 					ContactName,

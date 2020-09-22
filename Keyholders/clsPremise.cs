@@ -634,8 +634,8 @@ namespace Keyholders
 
 			GetGeneralSettings();
 
-			thisOrder.DeleteUnsubmittedOrders();
 			thisTransaction.DeletePendingTransactions();
+			thisOrder.DeleteUnsubmittedOrders();
 
 			CreateRenewalOrdersWithExceptions(RenewalDate);
 			CreateRenewalItemsWithExceptions(RenewalDate);
@@ -733,7 +733,10 @@ namespace Keyholders
 
 			clsQueryPart PersonQ = PersonQueryPart();
 			PersonQ.Joins.Clear();
-			
+
+			ItemQ.FromTables.Clear();
+			ItemQ.Joins.Clear();
+
 			queries[0] = MainQ;
 			queries[1] = CustomerQ;
 			queries[2] = CustomerGroupQ;
@@ -885,7 +888,8 @@ namespace Keyholders
 			queries[0].AddSelectColumn("1 as Quantity");
 			queries[0].AddSelectColumn("tblProduct.ProductName as ItemName");
 			queries[0].AddSelectColumn("tblProduct.ProductCode as ItemCode");
-			queries[0].AddSelectColumn("tblProduct.ShortDescription");
+			//queries[0].AddSelectColumn("tblProduct.ShortDescription ");
+			queries[0].AddSelectColumn("CONCAT(trim(tblProduct.ShortDescription), ' for ', tblPremise.PremiseNumber) as ShortDescription");
 			queries[0].AddSelectColumn("'' as LongDescription");
 
 			if (priceShownIncludesLocalTaxRate)
@@ -986,11 +990,12 @@ namespace Keyholders
 
 			string update = "Update tblPremise set tblPremise.DetailsUpdateRequired = 1 " + crLf
 				+ "	where tblPremise.Archive = 0  " + crLf
-				+ "  and (StickerRequired = 1" + crLf
-				+ "	OR InvoiceRequired = 1 " + crLf
-				+ "	OR StatementRequired = 1" + crLf
-				+ "	OR DateLastDetailsUpdate is null " + crLf
-				+ "	OR DateLastDetailsUpdate < '"  
+				+ "  and ("
+				//+ "	StickerRequired = 1 OR " + crLf
+				//+ "	InvoiceRequired = 1 OR " + crLf
+				//+ "	StatementRequired = 1 OR " + crLf
+				+ "	DateLastDetailsUpdate is null OR " + crLf
+				+ "	DateLastDetailsUpdate < '"  
 				+ localRecords.DBDateTime(Convert.ToDateTime(DateForCorrespondence).AddDays(1)) + "' - INTERVAL " 
 				+ minimumDetailsUpdateFrequency.ToString() + " MONTH)" + crLf;
 

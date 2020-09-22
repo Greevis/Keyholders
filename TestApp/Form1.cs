@@ -1923,7 +1923,8 @@ namespace TestApp
 
             int SeedInvoiceNumber = 1;
             string LogFolder = @"W:\logs\";
-            string fileToExportTo = @"export.csv";
+            //string fileToExportTo = @"export.csv";
+            string fileToExportTo = @"W:\www\secure.alertus.co.nz\pdfOutput\Alertus_Invoices_20200922131107-wqavrydu.csv";
 
 
             thisOrder.SubmitAllUnsubmittedOrders(DateTime.Now.ToString(), SeedInvoiceNumber, LogFolder, fileToExportTo);

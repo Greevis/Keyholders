@@ -652,15 +652,17 @@ namespace Keyholders
 			clsQueryBuilder QB = new clsQueryBuilder();
 			clsQueryPart[] queries = baseQueries;
 
-			StringBuilder condition = new StringBuilder("(Select * from tblOrder" + crLf
-				+ "Where " + thisTable + ".OrderSubmitted = 0" + crLf
-				+ ") " + thisTable + crLf);
+			string thisTable2 = "tblOrder";
+
+			StringBuilder condition = new StringBuilder("(Select * from " + thisTable2 + crLf
+				+ "Where " + thisTable2 + ".OrderSubmitted = 0" + crLf
+				+ ") " + thisTable2 + crLf);
 
 			thisSqlQuery = QB.BuildSqlStatement(
 				queries,
 				new ArrayList(),
 				condition.ToString(),
-				thisTable
+				thisTable2
 				);
 
 			//Ordering
