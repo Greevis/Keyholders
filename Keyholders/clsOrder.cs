@@ -1924,7 +1924,7 @@ namespace Keyholders
 
 				UnitAmount = String.Format("{0:0.00}", thisItem.my_Order_TotalItemCostExcludingTax(counter) / dQuantity);
 
-				AccountCode = "";
+				AccountCode = thisItem.my_ItemCode(counter);
 				TaxType = @"15% GST on Income";
 
 				Currency = "NZD";
