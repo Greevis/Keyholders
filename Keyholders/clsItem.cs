@@ -606,8 +606,6 @@ namespace Keyholders
 
 		#region Other GetBy Methods
 
-
-
 		#region GetByOrderSubmittedOrderCreatedMechanism
 
 		/// <summary>GetByOrderSubmittedOrderCreatedMechanism</summary>
@@ -981,9 +979,7 @@ namespace Keyholders
 
 		#region PostponeOrCancel
 
-		/// <summary>
-		/// Postpones/Cancels Renewal Orders
-		/// </summary>
+		/// <summary>PostponeOrCancel</summary>
 		/// <param name="ItemId">Id of Item to cancel</param>
 		/// <param name="Postpone">Whether to Postpone or Cancel</param>
 		public void PostponeOrCancel(int ItemId, int Postpone)
@@ -1002,12 +998,13 @@ namespace Keyholders
 			{
 				clsPremise thisPremise = new clsPremise(thisDbType, localRecords.dbConnection);
 				thisPremise.SetAttribute(PremiseId, "InvoiceRequired", "0");
-				thisPremise.SetAttribute(PremiseId, "CopyOfInvoiceRequired", "0");
+				thisPremise.AddAttributeToSet(PremiseId, "CopyOfInvoiceRequired", "0");
+
+				thisPremise.Save();
 
 				if (Postpone == 0 && CustomerId != 0)
 					thisPremise.KillRenewalOrder(PremiseId, CustomerId);
 
-				thisPremise.Save();
 			}
 
 		}
@@ -1017,11 +1014,7 @@ namespace Keyholders
 
 		#region SetFromProductId
 
-		/// <summary>
-		/// This method adds a quanity of a product to an Order. If the Product already exists 
-		/// in this order, it modifies this item and adds Quantity to the existing Quantity
-		/// Save must be called to complete this process.
-		/// </summary>
+		/// <summary>SetFromProductId</summary>
 		/// <param name="ItemId">Item to Change</param>
 		/// <param name="ProductId">Product Associated with this Item</param>
 		/// <param name="Quantity">Quantity of Item(s) or part there of</param>

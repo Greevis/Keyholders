@@ -459,6 +459,30 @@ namespace Keyholders
 
 		#endregion
 
+		#region Finalise
+
+		/// <summary>Finalise</summary>
+		/// <param name="RenewalDate">RenewalDate</param>
+		public void Finalise(string RenewalDate)
+		{
+			DateTime RenewalDateTime = Convert.ToDateTime(RenewalDate);
+			RenewalDate = localRecords.DBDateTime(RenewalDateTime);
+			string CurrentDate = localRecords.DBDateTime(DateTime.Now);
+			//			string DateNextSubscriptionDueToBeInvoiced = localRecords.DBDateTime(RenewalDateTime.AddYears(1));
+
+			string thisSql = "Update tblPremise set DateLastInvoice = '" + RenewalDate + "'," + crLf
+				+ "	InvoiceRequired = 0," + crLf
+				//				+ "	DateSubscriptionExpires = case when DateSubscriptionExpires < RenewalDate then Date_Add(DateSubscriptionExpires, INTERVAL 12 MONTH ) else DateSubscriptionExpires end, " + crLf
+				//				+ "	DateNextSubscriptionDueToBeInvoiced = case when DateSubscriptionExpires < RenewalDate then Date_Add(DateNextSubscriptionDueToBeInvoiced, INTERVAL 12 MONTH) else DateNextSubscriptionDueToBeInvoiced end " + crLf
+				+ "	DateSubscriptionExpires = Date_Add(DateSubscriptionExpires, INTERVAL 12 MONTH ), " + crLf
+				+ "	DateNextSubscriptionDueToBeInvoiced = Date_Add(DateNextSubscriptionDueToBeInvoiced, INTERVAL 12 MONTH) " + crLf
+				+ "where Archive = 0 and InvoiceRequired = 1";
+
+			localRecords.GetRecords(thisSql);
+		}
+
+		#endregion
+
 		#region Mark Correspondence as sent
 
 		#region MarkCorrespondenceAsSentForCustomerId
@@ -549,6 +573,8 @@ namespace Keyholders
 
 		#endregion
 
+		#region MarkCorrespondenceAsSent
+
 		/// <summary>
 		/// Mark all pending correspondence as sent
 		/// </summary>
@@ -599,8 +625,6 @@ namespace Keyholders
 
 		}
 
-
-
 		#endregion
 
 		#region ResetPremiseCorrepondence
@@ -618,6 +642,8 @@ namespace Keyholders
 			AddAttributeToSet(PremiseId, "StatementRequired", "0");
 			AddAttributeToSet(PremiseId, "DetailsUpdateRequired", "0");
 		}
+
+		#endregion
 
 		#endregion
 
@@ -889,7 +915,7 @@ namespace Keyholders
 			queries[0].AddSelectColumn("tblProduct.ProductName as ItemName");
 			queries[0].AddSelectColumn("tblProduct.ProductCode as ItemCode");
 			//queries[0].AddSelectColumn("tblProduct.ShortDescription ");
-			queries[0].AddSelectColumn("CONCAT(trim(tblProduct.ShortDescription), ' for ', tblPremise.PremiseNumber) as ShortDescription");
+			queries[0].AddSelectColumn("CONCAT(REPLACE(REPLACE(tblProduct.ShortDescription, '\r', ''), '\n', ''), ' for Sticker Number #', tblPremise.PremiseNumber) as ShortDescription");
 			queries[0].AddSelectColumn("'' as LongDescription");
 
 			if (priceShownIncludesLocalTaxRate)
